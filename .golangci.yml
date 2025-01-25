@@ -1,0 +1,125 @@
+run:
+  timeout: 3m
+  tests: true
+  build-tags:
+    - unit
+    - integration
+
+output:
+  formats:
+    - format: colored-line-number
+      path: stdout
+    - format: html
+      path: reports/golangci-lint.html
+  uniq-by-line: false
+  sort-results: true
+  sort-order:
+    - file
+    - severity
+    - linter
+  show-stats: true
+
+linters:
+  enable-all: true
+  disable:
+    - gochecknoinits
+    - goconst
+    - godox
+    - gomnd
+    - execinquery
+    - exhaustruct
+    - wrapcheck
+    - nolintlint  # Conflicts with gofmt
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  depguard:
+    rules:
+      main:
+        files:
+          - $all
+        deny:
+          - pkg: "github.com/pkg/errors"
+            desc: Should be replaced by standard lib errors package
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(github.com/novoseltcev/passkeeper)
+  goimports:
+    local-prefixes: github.com/novoseltcev/passkeeper
+  gosec:
+    excludes:
+      - G114
+  ireturn:
+    allow:
+      - anon
+      - error
+      - empty
+      - stdlib
+      - generic
+      - (or|er)$
+  lll:
+    line-length: 120
+  misspell:
+    locale: US
+  mnd:
+    ignored-numbers:
+      - '0o666'
+      - 1024
+
+  varnamelen:
+    check-return: true
+    ignore-type-assert-ok: true
+    ignore-map-index-ok: true
+    ignore-chan-recv-ok: true
+    ignore-names:
+      - err
+      - tt
+      - ch
+      - id
+      - fn
+    ignore-decls:
+      - b []byte
+      - p []byte
+      - i int
+      - n int
+      - fd *os.File
+      - fd afero.File
+      - fs afero.Fs
+      # sync
+      - wg sync.WaitGroup
+      - g *errgroup.Group
+      # db
+      - db *sqlx.DB
+      - tx *sql.Tx
+      # http
+      - r *http.Request
+      - w http.ResponseWriter
+      # tests
+      - t testing.T
+      - b testing.B
+      - ts *httptest.Server
+      # custom
+  
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - err113
+        - errcheck
+        - dupl
+        - funlen
+        - gochecknoglobals
+        - gosec
+        - unparam
+        - wsl
+    - linters:
+        - lll
+      source: "^//go:generate "
+  exclude-generated: lax
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  fix: true
