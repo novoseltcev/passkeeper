@@ -4,11 +4,17 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
 
-	"github.com/novoseltcev/passkeeper/pkg/grpcserver"
+	"github.com/novoseltcev/passkeeper/pkg/httpserver"
+)
+
+const (
+	defaultGracefulShutdownTimeout = 5 * time.Second
 )
 
 type App struct {
@@ -28,8 +34,8 @@ func NewApp(config *Config, logger *logrus.Logger, db *sqlx.DB) *App {
 func (a *App) Run(ctx context.Context) {
 	a.logger.Info("Server starting")
 
-	srv := grpcserver.New(a.config.Address)
-	// TODO@novoseltcev: register grpc-service
+	// TODO@novoseltcev: add router
+	srv := httpserver.New(nil, httpserver.WithAddr(a.config.Address))
 	go srv.Run()
 
 	a.logger.Info("Server started")
@@ -48,7 +54,15 @@ func (a *App) Run(ctx context.Context) {
 		}
 		a.logger.Info("Shutting down")
 
-		if err := srv.Shutdown(); err != nil {
+		timeoutCtx, cancel := context.WithTimeout(context.Background(), defaultGracefulShutdownTimeout)
+		defer cancel()
+
+		g, ctx := errgroup.WithContext(timeoutCtx)
+		g.Go(func() error {
+			return srv.Shutdown(ctx)
+		})
+
+		if err := g.Wait(); err != nil {
 			a.logger.WithError(err).Error("Failed to shutdown")
 		}
 	}()
