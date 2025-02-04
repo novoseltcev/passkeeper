@@ -17,8 +17,8 @@ const (
 	defaultExpiration = time.Hour * 24 * 7 // 7 days
 )
 
-// JWTManager is a JWT manager, which can generate and parse JWT tokens.
-type JWTManager struct {
+// Manager is a JWT manager, which can generate and parse JWT tokens.
+type Manager struct {
 	issuer  string
 	exp     time.Duration
 	alg     jwt.SigningMethod
@@ -26,9 +26,9 @@ type JWTManager struct {
 	storage TokenStorager
 }
 
-// New creates new JWTManager.
-func New(key string, opts ...Option) *JWTManager {
-	mngr := &JWTManager{
+// New creates new JWT Manager.
+func New(key string, opts ...Option) *Manager {
+	mngr := &Manager{
 		exp: defaultExpiration,
 		alg: jwt.SigningMethodHS256,
 		key: key,
@@ -44,13 +44,13 @@ func New(key string, opts ...Option) *JWTManager {
 // GenerateToken generates new token.
 //
 // If token not valid or not found in storage, it returns ParseError.
-func (j *JWTManager) GenerateToken(subject string) (string, error) {
+func (mngr *Manager) GenerateToken(subject string) (string, error) {
 	now := time.Now()
-	expAt := now.Add(j.exp)
+	expAt := now.Add(mngr.exp)
 
 	claims := jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(expAt),
-		Issuer:    j.issuer,
+		Issuer:    mngr.issuer,
 		IssuedAt:  jwt.NewNumericDate(now),
 		Subject:   subject,
 	}
@@ -59,14 +59,14 @@ func (j *JWTManager) GenerateToken(subject string) (string, error) {
 		return "", err
 	}
 
-	if j.storage != nil {
+	if mngr.storage != nil {
 		uid, err := uuid.NewRandom()
 		if err != nil {
 			return "", err
 		}
 
 		claims.ID = uid.String()
-		if err := j.storage.Store(Token{
+		if err := mngr.storage.Store(Token{
 			ID:        claims.ID,
 			Subject:   subject,
 			ExpiresAt: expAt,
@@ -75,16 +75,16 @@ func (j *JWTManager) GenerateToken(subject string) (string, error) {
 		}
 	}
 
-	return jwt.NewWithClaims(j.alg, claims).SignedString([]byte(j.key))
+	return jwt.NewWithClaims(mngr.alg, claims).SignedString([]byte(mngr.key))
 }
 
-func (j *JWTManager) parse(tokenString string) (*Token, error) {
+func (mngr *Manager) parse(tokenString string) (*Token, error) {
 	var claims jwt.RegisteredClaims
 	if _, err := jwt.ParseWithClaims(
 		tokenString,
 		&claims,
-		func(_ *jwt.Token) (interface{}, error) { return []byte(j.key), nil },
-		jwt.WithValidMethods([]string{j.alg.Alg()}),
+		func(_ *jwt.Token) (interface{}, error) { return []byte(mngr.key), nil },
+		jwt.WithValidMethods([]string{mngr.alg.Alg()}),
 	); err != nil {
 		return nil, err
 	}
@@ -97,13 +97,13 @@ func (j *JWTManager) parse(tokenString string) (*Token, error) {
 		return nil, ParseError{*jwt.NewValidationError("forbidden unexpired tokens", ValidationErrorWithoutExpiration)}
 	}
 
-	if j.issuer != "" && claims.Issuer != j.issuer {
+	if mngr.issuer != "" && claims.Issuer != mngr.issuer {
 		return nil, ParseError{
 			*jwt.NewValidationError("token has invalid issuer "+claims.Issuer, jwt.ValidationErrorIssuer),
 		}
 	}
 
-	if j.storage != nil {
+	if mngr.storage != nil {
 		if claims.ID == "" {
 			return nil, ParseError{*jwt.NewValidationError("token should have id", jwt.ValidationErrorId)}
 		}
@@ -123,14 +123,14 @@ func (j *JWTManager) parse(tokenString string) (*Token, error) {
 // ParseToken parses token string and returns token.
 //
 // If token not valid or not found in storage, it returns ParseError.
-func (j *JWTManager) ParseToken(tokenString string) (*Token, error) {
-	token, err := j.parse(tokenString)
+func (mngr *Manager) ParseToken(tokenString string) (*Token, error) {
+	token, err := mngr.parse(tokenString)
 	if err != nil {
 		return nil, err
 	}
 
-	if j.storage != nil {
-		_, err := j.storage.Load(token.ID)
+	if mngr.storage != nil {
+		_, err := mngr.storage.Load(token.ID)
 		if err != nil {
 			if errors.Is(err, ErrTokenNotFound) {
 				return nil, ParseError{ValidationError: jwt.ValidationError{

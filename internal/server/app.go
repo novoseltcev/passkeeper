@@ -7,10 +7,11 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/novoseltcev/passkeeper/pkg/httpserver"
+	"github.com/novoseltcev/passkeeper/pkg/jwtmanager"
 )
 
 const (
@@ -18,27 +19,29 @@ const (
 )
 
 type App struct {
-	config *Config
-	logger *logrus.Logger
-	db     *sqlx.DB
+	cfg         *Config
+	log         *zap.Logger
+	db          *sqlx.DB
+	jwtStorager jwtmanager.TokenStorager
 }
 
-func NewApp(config *Config, logger *logrus.Logger, db *sqlx.DB) *App {
+func NewApp(cfg *Config, log *zap.Logger, db *sqlx.DB, jwtStorager jwtmanager.TokenStorager) *App {
 	return &App{
-		config: config,
-		logger: logger,
-		db:     db,
+		cfg:         cfg,
+		log:         log,
+		db:          db,
+		jwtStorager: jwtStorager,
 	}
 }
 
 func (a *App) Run(ctx context.Context) {
-	a.logger.Info("Server starting")
+	a.log.Info("Server starting")
 
 	// TODO@novoseltcev: add router
 	srv := httpserver.New(nil, httpserver.WithAddr(a.config.Address))
 	go srv.Run()
 
-	a.logger.Info("Server started")
+	a.log.Info("Server started")
 
 	doneCh := make(chan struct{})
 	go func() { // nolint: contextcheck
@@ -46,13 +49,13 @@ func (a *App) Run(ctx context.Context) {
 
 		select {
 		case <-ctx.Done():
-			a.logger.Info("Interrupted by context")
+			a.log.Info("Interrupted by context")
 		case err := <-srv.Notify():
 			if !errors.Is(err, http.ErrServerClosed) {
-				a.logger.WithError(err).Error("Failed to listen and serve")
+				a.log.Error("Failed to listen and serve", zap.Error(err))
 			}
 		}
-		a.logger.Info("Shutting down")
+		a.log.Info("Shutting down, pless Ctrl+C to force")
 
 		timeoutCtx, cancel := context.WithTimeout(context.Background(), defaultGracefulShutdownTimeout)
 		defer cancel()
@@ -63,7 +66,7 @@ func (a *App) Run(ctx context.Context) {
 		})
 
 		if err := g.Wait(); err != nil {
-			a.logger.WithError(err).Error("Failed to shutdown")
+			a.log.Error("Failed to shutdown", zap.Error(err))
 		}
 	}()
 

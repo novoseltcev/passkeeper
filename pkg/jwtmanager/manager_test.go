@@ -44,7 +44,7 @@ func decodeToken(t *testing.T, tokenString string) (map[string]any, map[string]a
 	return decodeTokenPart(t, parts[0]), decodeTokenPart(t, parts[1])
 }
 
-func TestJWTManager_GenerateToken_Success(t *testing.T) {
+func TestManager_GenerateToken_Success(t *testing.T) {
 	t.Parallel()
 
 	t.Run("default", func(t *testing.T) {
@@ -117,7 +117,7 @@ func TestJWTManager_GenerateToken_Success(t *testing.T) {
 	})
 }
 
-func TestJWTManager_WithStorager_GenerateToken_Success(t *testing.T) {
+func TestManager_WithStorager_GenerateToken_Success(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -143,7 +143,7 @@ func TestJWTManager_WithStorager_GenerateToken_Success(t *testing.T) {
 	assert.Equal(t, jti, payload["jti"])
 }
 
-func TestJWTManager_WithStorager_GenerateToken_Fails_Save(t *testing.T) {
+func TestManager_WithStorager_GenerateToken_Fails_Save(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -157,7 +157,7 @@ func TestJWTManager_WithStorager_GenerateToken_Fails_Save(t *testing.T) {
 	require.ErrorIs(t, err, testutils.Err)
 }
 
-func TestJWTManager_GenerateToken_Fails_Expired(t *testing.T) {
+func TestManager_GenerateToken_Fails_Expired(t *testing.T) {
 	t.Parallel()
 
 	mngr := jwtmanager.New(testutils.STRING, jwtmanager.WithExpiration(time.Microsecond))
@@ -166,7 +166,7 @@ func TestJWTManager_GenerateToken_Fails_Expired(t *testing.T) {
 	assert.ErrorIs(t, err, jwt.ErrTokenExpired)
 }
 
-func TestJWTManager_ParseToken_Success(t *testing.T) {
+func TestManager_ParseToken_Success(t *testing.T) {
 	t.Parallel()
 
 	now := time.Now()
@@ -192,7 +192,7 @@ func TestJWTManager_ParseToken_Success(t *testing.T) {
 	}, token)
 }
 
-func TestJWTManager_WithStorage_ParseToken_Success(t *testing.T) {
+func TestManager_WithStorage_ParseToken_Success(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -212,7 +212,7 @@ func TestJWTManager_WithStorage_ParseToken_Success(t *testing.T) {
 	assert.Equal(t, payload["jti"], token.ID)
 }
 
-func TestJWTManager_ParseToken_Fails(t *testing.T) {
+func TestManager_ParseToken_Fails(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -281,7 +281,7 @@ func TestJWTManager_ParseToken_Fails(t *testing.T) {
 	}
 }
 
-func TestJWTManager_ParseToken_Fails_UnknownLoadError(t *testing.T) {
+func TestManager_ParseToken_Fails_UnknownLoadError(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -295,7 +295,7 @@ func TestJWTManager_ParseToken_Fails_UnknownLoadError(t *testing.T) {
 	assert.ErrorIs(t, err, testutils.Err)
 }
 
-func TestJWTManager_ParseToken_Fails_NotFound(t *testing.T) {
+func TestManager_ParseToken_Fails_NotFound(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
