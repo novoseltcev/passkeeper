@@ -17,8 +17,15 @@ const (
 	defaultExpiration = time.Hour * 24 * 7 // 7 days
 )
 
+//go:generate mockgen -source=manager.go -destination=mocks/manager.go -package=mocks -typed
+
+type Manager interface {
+	GenerateToken(subject string) (string, error)
+	ParseToken(tokenString string) (*Token, error)
+}
+
 // Manager is a JWT manager, which can generate and parse JWT tokens.
-type Manager struct {
+type manager struct {
 	issuer  string
 	exp     time.Duration
 	alg     jwt.SigningMethod
@@ -27,8 +34,8 @@ type Manager struct {
 }
 
 // New creates new JWT Manager.
-func New(key string, opts ...Option) *Manager {
-	mngr := &Manager{
+func New(key string, opts ...Option) Manager {
+	mngr := &manager{
 		exp: defaultExpiration,
 		alg: jwt.SigningMethodHS256,
 		key: key,
@@ -44,7 +51,7 @@ func New(key string, opts ...Option) *Manager {
 // GenerateToken generates new token.
 //
 // If token not valid or not found in storage, it returns ParseError.
-func (mngr *Manager) GenerateToken(subject string) (string, error) {
+func (mngr *manager) GenerateToken(subject string) (string, error) {
 	now := time.Now()
 	expAt := now.Add(mngr.exp)
 
@@ -78,7 +85,7 @@ func (mngr *Manager) GenerateToken(subject string) (string, error) {
 	return jwt.NewWithClaims(mngr.alg, claims).SignedString([]byte(mngr.key))
 }
 
-func (mngr *Manager) parse(tokenString string) (*Token, error) {
+func (mngr *manager) parse(tokenString string) (*Token, error) {
 	var claims jwt.RegisteredClaims
 	if _, err := jwt.ParseWithClaims(
 		tokenString,
@@ -90,26 +97,24 @@ func (mngr *Manager) parse(tokenString string) (*Token, error) {
 	}
 
 	if claims.Subject == "" {
-		return nil, ParseError{*jwt.NewValidationError("token should have subject", ValidationErrorSubject)}
+		return nil, NewParseError("token should have subject", ValidationErrorSubject)
 	}
 
 	if claims.ExpiresAt == nil {
-		return nil, ParseError{*jwt.NewValidationError("forbidden unexpired tokens", ValidationErrorWithoutExpiration)}
+		return nil, NewParseError("forbidden unexpired tokens", ValidationErrorWithoutExpiration)
 	}
 
 	if mngr.issuer != "" && claims.Issuer != mngr.issuer {
-		return nil, ParseError{
-			*jwt.NewValidationError("token has invalid issuer "+claims.Issuer, jwt.ValidationErrorIssuer),
-		}
+		return nil, NewParseError("token has invalid issuer "+claims.Issuer, jwt.ValidationErrorIssuer)
 	}
 
 	if mngr.storage != nil {
 		if claims.ID == "" {
-			return nil, ParseError{*jwt.NewValidationError("token should have id", jwt.ValidationErrorId)}
+			return nil, NewParseError("token should have id", jwt.ValidationErrorId)
 		}
 
 		if _, err := uuid.Parse(claims.ID); err != nil {
-			return nil, ParseError{*jwt.NewValidationError("token id is not valid uuid", jwt.ValidationErrorId)}
+			return nil, NewParseError("token id is not valid uuid", jwt.ValidationErrorId)
 		}
 	}
 
@@ -123,7 +128,7 @@ func (mngr *Manager) parse(tokenString string) (*Token, error) {
 // ParseToken parses token string and returns token.
 //
 // If token not valid or not found in storage, it returns ParseError.
-func (mngr *Manager) ParseToken(tokenString string) (*Token, error) {
+func (mngr *manager) ParseToken(tokenString string) (*Token, error) {
 	token, err := mngr.parse(tokenString)
 	if err != nil {
 		return nil, err

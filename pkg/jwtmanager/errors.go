@@ -25,6 +25,10 @@ type ParseError struct {
 	jwt.ValidationError
 }
 
+func NewParseError(errorText string, errorFlags uint32) *ParseError {
+	return &ParseError{ValidationError: *jwt.NewValidationError(errorText, errorFlags)}
+}
+
 func (e ParseError) Is(err error) bool {
 	if b := e.ValidationError.Is(err); b {
 		return true
