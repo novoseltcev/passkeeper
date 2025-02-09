@@ -9,7 +9,7 @@ import (
 	"github.com/steinfletcher/apitest"
 	"go.uber.org/mock/gomock"
 
-	"github.com/novoseltcev/passkeeper/internal/controllers/http/middleware"
+	"github.com/novoseltcev/passkeeper/internal/middleware"
 	"github.com/novoseltcev/passkeeper/pkg/jwtmanager"
 	"github.com/novoseltcev/passkeeper/pkg/jwtmanager/mocks"
 	"github.com/novoseltcev/passkeeper/pkg/testutils"

@@ -6,10 +6,15 @@ import (
 	"net/http"
 	"time"
 
+	ginzap "github.com/gin-contrib/zap"
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/novoseltcev/passkeeper/internal/controllers/http/srv"
+	v1 "github.com/novoseltcev/passkeeper/internal/controllers/http/v1"
 	"github.com/novoseltcev/passkeeper/pkg/httpserver"
 	"github.com/novoseltcev/passkeeper/pkg/jwtmanager"
 )
@@ -37,8 +42,14 @@ func NewApp(cfg *Config, log *zap.Logger, db *sqlx.DB, jwtStorager jwtmanager.To
 func (a *App) Run(ctx context.Context) {
 	a.log.Info("Server starting")
 
-	// TODO@novoseltcev: add router
-	srv := httpserver.New(nil, httpserver.WithAddr(a.config.Address))
+	rootHandler, err := a.getRootHandler()
+	if err != nil {
+		a.log.Error("Failed to create root handler", zap.Error(err))
+
+		return
+	}
+
+	srv := httpserver.New(rootHandler, httpserver.WithAddr(a.cfg.Address))
 	go srv.Run()
 
 	a.log.Info("Server started")
@@ -71,5 +82,29 @@ func (a *App) Run(ctx context.Context) {
 	}()
 
 	<-doneCh
-	a.logger.Info("Server stopped")
+	a.log.Info("Server stopped")
+}
+
+func (a *App) getRootHandler() (http.Handler, error) {
+	root := gin.New()
+	if err := root.SetTrustedProxies(a.cfg.TrustedProxies); err != nil {
+		return nil, err
+	}
+
+	root.Use(
+		ginzap.Ginzap(a.log, time.RFC3339, false),
+		gin.Recovery(),
+	)
+
+	jwt := jwtmanager.New(a.cfg.JWT.Secret,
+		jwtmanager.WithIssuer("PassKeeper"),
+		jwtmanager.WithAlgorithm(jwt.SigningMethodHS512),
+		jwtmanager.WithExpiration(a.cfg.JWT.Lifetime),
+		jwtmanager.WithTokenStorage(a.jwtStorager),
+	)
+
+	srv.AddRoutes(root.Group("/srv"))
+	v1.AddRoutes(root.Group("/v1"), jwt)
+
+	return root.Handler(), nil
 }
