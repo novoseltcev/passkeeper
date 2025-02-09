@@ -18,8 +18,17 @@ build: build-server
 server: $(SERVER_DIR)/server
 	$(SERVER_DIR)/server -d $(DATABASE_DSN)
 
+# make new-migration NAME=init_tables
+new-migration:
+	migrate create -dir ./migrations -seq -ext sql $(NAME)
+
+.PHONY: migrate
 migrate:
-	migrate -source file://migrations -database $(DATABASE_DSN) up
+	migrate -path migrations -database $(DATABASE_DSN) up
+
+.PHONY: psql
+psql:
+	psql $(DATABASE_DSN)
 
 up:
 	docker-compose up -d --build
