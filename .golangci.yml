@@ -50,6 +50,10 @@ linters-settings:
       - standard
       - default
       - prefix(github.com/novoseltcev/passkeeper)
+  gocritic:
+    settings:
+      ifElseChain:
+          minThreshold: 4
   goimports:
     local-prefixes: github.com/novoseltcev/passkeeper
   gosec:
@@ -102,6 +106,7 @@ linters-settings:
       - w http.ResponseWriter
       - c *gin.Context
       - r *gin.Engine
+      - rg *gin.RouterGroup
       # tests
       - t testing.T
       - b testing.B

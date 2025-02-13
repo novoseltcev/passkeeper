@@ -3,36 +3,50 @@ package models
 type (
 	SecretID   string
 	SecretType int
-	EncdData   []byte
 )
 
 const (
 	SecretTypePwd SecretType = iota + 1
+	SecretTypeCard
 	SecretTypeTxt
 	SecretTypeFile
-	SecretTypeCard
 )
 
+func (t SecretType) String() string {
+	switch t {
+	case SecretTypePwd:
+		return "password"
+	case SecretTypeCard:
+		return "card"
+	case SecretTypeTxt:
+		return "text"
+	case SecretTypeFile:
+		return "file"
+	default:
+		return "unknown"
+	}
+}
+
+type EncdData []byte
+
 type Secret struct {
-	ID      SecretID
-	Name    string
-	Type    SecretType
-	Content EncdData
-	Meta    EncdData
-	Owner   *User
+	ID    SecretID
+	Name  string
+	Type  SecretType
+	Data  EncdData
+	Owner *User
 }
 
 func NewSecret(
 	name string,
 	secretType SecretType,
-	content, meta []byte,
+	data EncdData,
 	owner *User,
 ) *Secret {
 	return &Secret{
-		Name:    name,
-		Type:    secretType,
-		Content: content,
-		Meta:    meta,
-		Owner:   owner,
+		Name:  name,
+		Type:  secretType,
+		Data:  data,
+		Owner: owner,
 	}
 }

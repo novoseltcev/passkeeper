@@ -47,9 +47,9 @@ COVERAGE_PROFILE=reports/profile.cov
 test:
 	go clean -testcache
 	go test -coverprofile=$(COVERAGE_PROFILE) -bench=. -benchmem ./...
-	grep -v -E -f .covignore $(COVERAGE_PROFILE) > $(COVERAGE_PROFILE).filtered && mv $(COVERAGE_PROFILE).filtered $(COVERAGE_PROFILE)
 
 cover:
+	grep -v -E -f .covignore $(COVERAGE_PROFILE) > $(COVERAGE_PROFILE).filtered && mv $(COVERAGE_PROFILE).filtered $(COVERAGE_PROFILE)
 	go tool cover -func=$(COVERAGE_PROFILE) -o reports/coverage.out
 
 docs:

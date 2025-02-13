@@ -1,21 +1,19 @@
 package models
 
 type (
-	UserID         string
-	HashedPassword []byte
+	UserID string
+	User   struct {
+		ID            UserID
+		Login         string
+		PasswordHash  []byte
+		SecretKeyHash []byte
+	}
 )
 
-type User struct {
-	ID        UserID
-	Login     string
-	Pwd       HashedPassword
-	MasterPwd HashedPassword
-}
-
-func NewUser(login string, pwd, masterPwd HashedPassword) *User {
+func NewUser(login string, pwdHash, secretKeyHash []byte) *User {
 	return &User{
-		Login:     login,
-		Pwd:       pwd,
-		MasterPwd: masterPwd,
+		Login:         login,
+		PasswordHash:  pwdHash,
+		SecretKeyHash: secretKeyHash,
 	}
 }
