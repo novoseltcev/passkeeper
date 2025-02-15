@@ -14,12 +14,13 @@ import (
 	"github.com/novoseltcev/passkeeper/internal/controllers/http/v1/user"
 	domain "github.com/novoseltcev/passkeeper/internal/domains/user"
 	domainmocks "github.com/novoseltcev/passkeeper/internal/domains/user/mocks"
+	"github.com/novoseltcev/passkeeper/internal/models"
 	jwtmocks "github.com/novoseltcev/passkeeper/pkg/jwtmanager/mocks"
 	"github.com/novoseltcev/passkeeper/pkg/testutils"
 )
 
 const (
-	testID       = "test-id"
+	testID       = models.UserID("test-id")
 	testToken    = "test-token"
 	testLogin    = "test@test.com"
 	testPassword = "p@ssw0rd"
@@ -40,7 +41,7 @@ func TestLogin_Success(t *testing.T) {
 		Return(testID, nil)
 
 	jwt.EXPECT().
-		GenerateToken(testID).
+		GenerateToken(string(testID)).
 		Return(testToken, nil)
 
 	apitest.Handler(root.Handler()).

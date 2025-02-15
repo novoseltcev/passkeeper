@@ -35,7 +35,7 @@ func TestRegister_Success(t *testing.T) {
 		Return(testID, nil)
 
 	jwt.EXPECT().
-		GenerateToken(testID).
+		GenerateToken(string(testID)).
 		Return(testToken, nil)
 
 	apitest.Handler(root.Handler()).

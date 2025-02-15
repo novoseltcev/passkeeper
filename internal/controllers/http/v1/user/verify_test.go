@@ -14,15 +14,12 @@ import (
 	"github.com/novoseltcev/passkeeper/internal/controllers/http/v1/user"
 	domain "github.com/novoseltcev/passkeeper/internal/domains/user"
 	domainmocks "github.com/novoseltcev/passkeeper/internal/domains/user/mocks"
-	"github.com/novoseltcev/passkeeper/internal/models"
 	"github.com/novoseltcev/passkeeper/internal/server/auth"
 	"github.com/novoseltcev/passkeeper/pkg/testutils"
 )
 
-const testOwnerID = models.UserID("f535204f-9283-4c1a-8e68-8834c6ae83fb")
-
 func guardMock(c *gin.Context) {
-	c.Set(auth.IdentityKey, string(testOwnerID))
+	c.Set(auth.IdentityKey, string(testID))
 	c.Next()
 }
 
@@ -36,7 +33,7 @@ func TestVerify_Success(t *testing.T) {
 	user.AddRoutes(&root.RouterGroup, service, nil, guardMock)
 
 	service.EXPECT().
-		VerifySecret(gomock.Any(), testOwnerID, testSecretKey).
+		VerifySecret(gomock.Any(), testID, testSecretKey).
 		Return(nil)
 
 	apitest.Handler(root.Handler()).
