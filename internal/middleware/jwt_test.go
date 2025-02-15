@@ -74,7 +74,6 @@ func TestJWT_FailsParseToken(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
-	mngr := mocks.NewMockManager(ctrl)
 
 	tests := []struct {
 		name   string
@@ -89,7 +88,9 @@ func TestJWT_FailsParseToken(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			r := gin.New()
+			mngr := mocks.NewMockManager(ctrl)
 			r.Use(middleware.JWT(mngr, identityKey))
+
 			mngr.EXPECT().ParseToken(testTokenString).Return(nil, tt.err)
 
 			apitest.Handler(r.Handler()).

@@ -12,7 +12,7 @@ type CardSecretData struct {
 	SecretKey string         `binding:"required"`
 	Name      string         `binding:"required,min=4,max=32"`
 	Number    string         `binding:"required,credit_card"`
-	Holder    string         `json:"holder"`
+	Holder    string         `binding:""`
 	Exp       string         `binding:"required,datetime=01/02/2006"`
 	CVV       string         `binding:"required,min=3,max=4,numeric" json:"cvv"`
 	Meta      map[string]any `binding:"required"`

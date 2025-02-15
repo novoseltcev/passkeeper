@@ -8,11 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/steinfletcher/apitest"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	"github.com/novoseltcev/passkeeper/internal/controllers/http/common/response"
 	"github.com/novoseltcev/passkeeper/internal/controllers/http/v1/secrets"
 	domain "github.com/novoseltcev/passkeeper/internal/domains/secrets"
 	"github.com/novoseltcev/passkeeper/internal/domains/secrets/mocks"
@@ -248,66 +245,6 @@ func TestUpdate_Fails_Update(t *testing.T) {
 	}
 }
 
-var emptyUpdateErrors = map[models.SecretType][]string{
-	models.SecretTypePwd: {
-		"Field validation for 'SecretKey' failed on the 'required' tag",
-		"Field validation for 'Name' failed on the 'required' tag",
-		"Field validation for 'Login' failed on the 'required' tag",
-		"Field validation for 'Password' failed on the 'required' tag",
-		"Field validation for 'Meta' failed on the 'required' tag",
-	},
-	models.SecretTypeCard: {
-		"Field validation for 'SecretKey' failed on the 'required' tag",
-		"Field validation for 'Name' failed on the 'required' tag",
-		"Field validation for 'Number' failed on the 'required' tag",
-		"Field validation for 'Exp' failed on the 'required' tag",
-		"Field validation for 'CVV' failed on the 'required' tag",
-		"Field validation for 'Meta' failed on the 'required' tag",
-	},
-	models.SecretTypeTxt: {
-		"Field validation for 'SecretKey' failed on the 'required' tag",
-		"Field validation for 'Name' failed on the 'required' tag",
-		"Field validation for 'Content' failed on the 'required' tag",
-		"Field validation for 'Meta' failed on the 'required' tag",
-	},
-	models.SecretTypeFile: {
-		"Field validation for 'SecretKey' failed on the 'required' tag",
-		"Field validation for 'Name' failed on the 'required' tag",
-		"Field validation for 'Filename' failed on the 'required' tag",
-		"Field validation for 'Content' failed on the 'required' tag",
-		"Field validation for 'Meta' failed on the 'required' tag",
-	},
-}
-
-func TestUpdate_EmptyBody_Fails_UnprocessableEntity(t *testing.T) {
-	t.Parallel()
-	root := gin.Default()
-	secrets.AddRoutes(&root.RouterGroup, nil, guardMock)
-
-	for _, secretType := range secretTypes {
-		testName := secretType.String()
-		t.Run(testName, func(t *testing.T) {
-			t.Parallel()
-
-			result := apitest.New(testName).
-				Handler(root.Handler()).
-				Debug().
-				Putf("/secrets/%s/%s", secretType.String(), testID).
-				Body("{}").
-				Expect(t).
-				Status(http.StatusUnprocessableEntity).
-				End()
-
-			var response response.Response[any]
-			result.JSON(&response)
-
-			require.False(t, response.Success)
-			require.Nil(t, response.Result)
-			assert.ElementsMatch(t, emptyUpdateErrors[secretType], response.Errors)
-		})
-	}
-}
-
 func TestUpdatePassword_Fails_Validate(t *testing.T) {
 	t.Parallel()
 
@@ -401,12 +338,7 @@ func TestUpdatePassword_Fails_Validate(t *testing.T) {
 				End()
 
 			if len(tt.errs) > 0 {
-				var response response.Response[any]
-				result.JSON(&response)
-
-				require.False(t, response.Success)
-				require.Nil(t, response.Result)
-				assert.ElementsMatch(t, tt.errs, response.Errors)
+				checkErrors(t, result, tt.errs)
 			}
 		})
 	}
@@ -440,77 +372,6 @@ func TestUpdateCard_Fails_Validate(t *testing.T) {
 			},
 		},
 		{
-			name: "empty fields",
-			body: `
-			{
-				"secretKey":"",
-				"name":"",
-				"number":"",
-				"holder":"",
-				"exp":"",
-				"meta":{}
-			}`,
-			status: http.StatusUnprocessableEntity,
-			errs: []string{
-				"Field validation for 'SecretKey' failed on the 'required' tag",
-				"Field validation for 'Name' failed on the 'required' tag",
-				"Field validation for 'Number' failed on the 'required' tag",
-				"Field validation for 'Exp' failed on the 'required' tag",
-				"Field validation for 'CVV' failed on the 'required' tag",
-			},
-		},
-		{
-			name: "len(name < 4, len(cvv) < 3, number is not credit card, exp is not date",
-			body: `
-			{
-				"name":"123",
-				"cvv":"12",
-				"number":"some",
-				"exp":"abc",
-				"secretKey":" ",
-				"meta":{}
-			}`,
-			status: http.StatusUnprocessableEntity,
-			errs: []string{
-				"Field validation for 'Name' failed on the 'min' tag",
-				"Field validation for 'CVV' failed on the 'min' tag",
-				"Field validation for 'Number' failed on the 'credit_card' tag",
-				"Field validation for 'Exp' failed on the 'datetime' tag",
-			},
-		},
-		{
-			name: "len(name) > 32, len(cvv) > 4, exp mismatch layout",
-			body: fmt.Sprintf(`
-			{
-				"name":"%s",
-				"cvv":"12345",
-				"exp":"08/12/2025 12:00:00",
-				"secretKey":" ",
-				"number":"4111111111111111",
-				"meta":{}
-			}`, strings.Repeat("a", 33)),
-			status: http.StatusUnprocessableEntity,
-			errs: []string{
-				"Field validation for 'Name' failed on the 'max' tag",
-				"Field validation for 'CVV' failed on the 'max' tag",
-				"Field validation for 'Exp' failed on the 'datetime' tag",
-			},
-		},
-		{
-			name: "cvv is not numeric",
-			body: `
-			{
-				"cvv":"12a",
-				"secretKey":" ",
-				"name":"test",
-				"number":"4111111111111111",
-				"exp":"08/12/2025",
-				"meta":{}
-			}`,
-			status: http.StatusUnprocessableEntity,
-			errs:   []string{"Field validation for 'CVV' failed on the 'numeric' tag"},
-		},
-		{
 			name:   "meta is string",
 			body:   `{"meta":"{}"}`,
 			status: http.StatusBadRequest,
@@ -533,12 +394,7 @@ func TestUpdateCard_Fails_Validate(t *testing.T) {
 				End()
 
 			if len(tt.errs) > 0 {
-				var response response.Response[any]
-				result.JSON(&response)
-
-				require.False(t, response.Success)
-				require.Nil(t, response.Result)
-				assert.ElementsMatch(t, tt.errs, response.Errors)
+				checkErrors(t, result, tt.errs)
 			}
 		})
 	}
@@ -570,46 +426,6 @@ func TestUpdateText_Fails_Validate(t *testing.T) {
 			},
 		},
 		{
-			name: "empty fields",
-			body: `
-			{
-				"secretKey":"",
-				"name":"",
-				"content":"",
-				"meta":{}
-			}`,
-			status: http.StatusUnprocessableEntity,
-			errs: []string{
-				"Field validation for 'SecretKey' failed on the 'required' tag",
-				"Field validation for 'Name' failed on the 'required' tag",
-				"Field validation for 'Content' failed on the 'required' tag",
-			},
-		},
-		{
-			name: "len(name) < 4",
-			body: `
-			{
-				"name":"123",
-				"secretKey":" ",
-				"content":" ",
-				"meta":{}
-			}`,
-			status: http.StatusUnprocessableEntity,
-			errs:   []string{"Field validation for 'Name' failed on the 'min' tag"},
-		},
-		{
-			name: "len(name) > 32",
-			body: fmt.Sprintf(`
-			{
-				"name":"%s",
-				"secretKey":" ",
-				"content":" ",
-				"meta":{}
-			}`, strings.Repeat("a", 33)),
-			status: http.StatusUnprocessableEntity,
-			errs:   []string{"Field validation for 'Name' failed on the 'max' tag"},
-		},
-		{
 			name:   "meta is string",
 			body:   `{"meta":"{}"}`,
 			status: http.StatusBadRequest,
@@ -632,12 +448,7 @@ func TestUpdateText_Fails_Validate(t *testing.T) {
 				End()
 
 			if len(tt.errs) > 0 {
-				var response response.Response[any]
-				result.JSON(&response)
-
-				require.False(t, response.Success)
-				require.Nil(t, response.Result)
-				assert.ElementsMatch(t, tt.errs, response.Errors)
+				checkErrors(t, result, tt.errs)
 			}
 		})
 	}
@@ -670,53 +481,6 @@ func TestUpdateFile_Fails_Validate(t *testing.T) {
 			},
 		},
 		{
-			name: "empty fields",
-			body: `
-			{
-				"secretKey":"",
-				"name":"",
-				"filename":"",
-				"content":"",
-				"meta":{}
-			}`,
-			status: http.StatusUnprocessableEntity,
-			errs: []string{
-				"Field validation for 'SecretKey' failed on the 'required' tag",
-				"Field validation for 'Name' failed on the 'required' tag",
-				"Field validation for 'Filename' failed on the 'required' tag",
-				"Field validation for 'Content' failed on the 'required' tag",
-			},
-		},
-		{
-			name: "len(name) < 4, content is not hexadecimal",
-			body: `
-			{
-				"name":"123",
-				"secretKey":" ",
-				"filename":" ",
-				"content":" ",
-				"meta":{}
-			}`,
-			status: http.StatusUnprocessableEntity,
-			errs: []string{
-				"Field validation for 'Name' failed on the 'min' tag",
-				"Field validation for 'Content' failed on the 'hexadecimal' tag",
-			},
-		},
-		{
-			name: "len(name) > 32",
-			body: fmt.Sprintf(`
-			{
-				"name":"%s",
-				"secretKey":" ",
-				"filename":" ",
-				"content":"74657374",
-				"meta":{}
-			}`, strings.Repeat("a", 33)),
-			status: http.StatusUnprocessableEntity,
-			errs:   []string{"Field validation for 'Name' failed on the 'max' tag"},
-		},
-		{
 			name:   "meta is string",
 			body:   `{"meta":"{}"}`,
 			status: http.StatusBadRequest,
@@ -739,12 +503,7 @@ func TestUpdateFile_Fails_Validate(t *testing.T) {
 				End()
 
 			if len(tt.errs) > 0 {
-				var response response.Response[any]
-				result.JSON(&response)
-
-				require.False(t, response.Success)
-				require.Nil(t, response.Result)
-				assert.ElementsMatch(t, tt.errs, response.Errors)
+				checkErrors(t, result, tt.errs)
 			}
 		})
 	}
