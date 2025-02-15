@@ -11,6 +11,8 @@ import (
 	"github.com/spf13/pflag"
 	"go.uber.org/zap"
 
+	"github.com/novoseltcev/passkeeper/internal/domains/secrets"
+	"github.com/novoseltcev/passkeeper/internal/domains/user"
 	"github.com/novoseltcev/passkeeper/internal/server"
 )
 
@@ -45,7 +47,12 @@ func Cmd() *cobra.Command {
 			}
 			defer db.Close()
 
-			app := server.NewApp(cfg, logger, db, nil) // TODO: implement token storage
+			app := server.NewApp(
+				cfg, logger, db,
+				nil, // TODO: implement token storage
+				secrets.NewService(nil, nil, nil),
+				user.NewService(nil, nil),
+			)
 
 			ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 			defer cancel()

@@ -9,7 +9,7 @@ import (
 type PasswordData struct {
 	Login    string
 	Password string
-	Meta     string
+	Meta     map[string]any
 }
 
 func (p PasswordData) ToString() string {
@@ -25,7 +25,7 @@ type CardData struct {
 	Holder string
 	Exp    string
 	CVV    string
-	Meta   string
+	Meta   map[string]any
 }
 
 func (c CardData) ToString() string {
@@ -41,7 +41,7 @@ func (c CardData) SecretType() models.SecretType {
 
 type TextData struct {
 	Content string
-	Meta    string
+	Meta    map[string]any
 }
 
 func (t TextData) ToString() string {
@@ -55,7 +55,7 @@ func (t TextData) SecretType() models.SecretType {
 type FileData struct {
 	Filename string
 	Content  string
-	Meta     string
+	Meta     map[string]any
 }
 
 func (f FileData) ToString() string {

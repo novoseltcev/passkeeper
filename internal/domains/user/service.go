@@ -9,6 +9,8 @@ import (
 	"github.com/novoseltcev/passkeeper/internal/models"
 )
 
+//go:generate mockgen -destination=./mocks/service_mocks.go -package=mocks -source=service.go -typed
+
 // Service is a domain service for users.
 type Service interface {
 	// Login authenticates a user by login and password.
@@ -22,6 +24,12 @@ type Service interface {
 	// Errors:
 	// - ErrLoginIsBusy if the login is busy.
 	Register(ctx context.Context, login, password, secretKey string) (models.UserID, error)
+
+	// VerifySecret verifies a owner's secret key.
+	//
+	// Errors:
+	// - ErrInvalidSecretType
+	VerifySecret(ctx context.Context, ownerID models.UserID, secretKey string) error
 }
 
 type Hasher interface {
@@ -82,4 +90,22 @@ func (s *service) Register(ctx context.Context, login, password, secretKey strin
 	}
 
 	return s.repo.CreateAccount(ctx, models.NewUser(login, hashedPwd, hashedSecretKey))
+}
+
+func (s *service) VerifySecret(ctx context.Context, ownerID models.UserID, secretKey string) error {
+	owner, err := s.repo.GetByID(ctx, ownerID)
+	if err != nil {
+		return err
+	}
+
+	hashedSecretKey, err := s.hasher.Hash(secretKey)
+	if err != nil {
+		return err
+	}
+
+	if !hmac.Equal(owner.SecretKeyHash, hashedSecretKey) {
+		return ErrInvalidSecretKey
+	}
+
+	return nil
 }

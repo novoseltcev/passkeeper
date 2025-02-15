@@ -15,6 +15,10 @@ import (
 
 	"github.com/novoseltcev/passkeeper/internal/controllers/http/srv"
 	v1 "github.com/novoseltcev/passkeeper/internal/controllers/http/v1"
+	"github.com/novoseltcev/passkeeper/internal/domains/secrets"
+	"github.com/novoseltcev/passkeeper/internal/domains/user"
+	"github.com/novoseltcev/passkeeper/internal/middleware"
+	"github.com/novoseltcev/passkeeper/internal/server/auth"
 	"github.com/novoseltcev/passkeeper/pkg/httpserver"
 	"github.com/novoseltcev/passkeeper/pkg/jwtmanager"
 )
@@ -24,18 +28,29 @@ const (
 )
 
 type App struct {
-	cfg         *Config
-	log         *zap.Logger
-	db          *sqlx.DB
-	jwtStorager jwtmanager.TokenStorager
+	cfg           *Config
+	log           *zap.Logger
+	db            *sqlx.DB
+	jwtStorager   jwtmanager.TokenStorager
+	secretService secrets.Service
+	userService   user.Service
 }
 
-func NewApp(cfg *Config, log *zap.Logger, db *sqlx.DB, jwtStorager jwtmanager.TokenStorager) *App {
+func NewApp(
+	cfg *Config,
+	log *zap.Logger,
+	db *sqlx.DB,
+	jwtStorager jwtmanager.TokenStorager,
+	secretService secrets.Service,
+	userService user.Service,
+) *App {
 	return &App{
-		cfg:         cfg,
-		log:         log,
-		db:          db,
-		jwtStorager: jwtStorager,
+		cfg:           cfg,
+		log:           log,
+		db:            db,
+		jwtStorager:   jwtStorager,
+		secretService: secretService,
+		userService:   userService,
 	}
 }
 
@@ -104,7 +119,7 @@ func (a *App) getRootHandler() (http.Handler, error) {
 	)
 
 	srv.AddRoutes(root.Group("/srv"))
-	v1.AddRoutes(root.Group("/v1"), jwt)
+	v1.AddRoutes(root.Group("/v1"), jwt, middleware.JWT(jwt, auth.IdentityKey), a.secretService, a.userService)
 
 	return root.Handler(), nil
 }

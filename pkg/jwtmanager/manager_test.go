@@ -217,11 +217,6 @@ func TestManager_ParseToken_Fails(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
-	mngr := jwtmanager.New(testKey,
-		jwtmanager.WithIssuer(testIssuer),
-		jwtmanager.WithTokenStorage(mocks.NewMockTokenStorager(ctrl)),
-	)
-
 	tests := []struct {
 		name        string
 		tokenString string
@@ -275,6 +270,11 @@ func TestManager_ParseToken_Fails(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+			mngr := jwtmanager.New(testKey,
+				jwtmanager.WithIssuer(testIssuer),
+				jwtmanager.WithTokenStorage(mocks.NewMockTokenStorager(ctrl)),
+			)
+
 			_, err := mngr.ParseToken(tt.tokenString)
 			assert.ErrorIs(t, err, tt.err)
 		})
