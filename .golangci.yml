@@ -111,6 +111,7 @@ linters-settings:
       - t testing.T
       - b testing.B
       - ts *httptest.Server
+      - m *migrate.Migrate
       # custom
   
 issues:

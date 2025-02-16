@@ -28,7 +28,7 @@ func GetPage(service domain.Service) func(c *gin.Context) {
 			return
 		}
 
-		page, err := service.GetPage(c, ownerID, req.Page, req.Limit)
+		page, err := service.GetPage(c, ownerID, req.Limit, req.Offset)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 
@@ -44,13 +44,13 @@ func GetPage(service domain.Service) func(c *gin.Context) {
 			}
 		}
 
-		c.JSON(http.StatusOK, response.NewPaginated(schemas, req.Page, req.Limit, page.Pages))
+		c.JSON(http.StatusOK, response.NewPaginated(schemas, req.Limit, req.Offset, page.Total))
 	}
 }
 
 type PaginationRequest struct {
-	Page  uint64 `binding:"required,gte=1"         form:"page"`
-	Limit uint64 `binding:"required,gte=1,lte=100" form:"limit"`
+	Limit  uint64 `binding:"required,gte=1,lte=100" form:"limit"`
+	Offset uint64 `binding:"gte=0"                  form:"offset"`
 }
 
 type SecretSchema struct {

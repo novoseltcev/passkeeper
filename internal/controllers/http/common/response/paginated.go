@@ -1,9 +1,9 @@
 package response
 
 type pagination struct {
-	Page  uint64 `json:"page"`
-	Limit uint64 `json:"limit"`
-	Pages uint64 `json:"pages"`
+	Limit  uint64 `json:"limit"`
+	Offset uint64 `json:"offset"`
+	Total  uint64 `json:"total"`
 }
 
 type PaginatedResponse[T any] struct {
@@ -12,14 +12,14 @@ type PaginatedResponse[T any] struct {
 	Pagination pagination `json:"pagination"`
 }
 
-func NewPaginated[T any](result []T, page, limit, pages uint64) *PaginatedResponse[T] {
+func NewPaginated[T any](result []T, limit, offset, total uint64) *PaginatedResponse[T] {
 	return &PaginatedResponse[T]{
 		Success: true,
 		Result:  result,
 		Pagination: pagination{
-			Page:  page,
-			Limit: limit,
-			Pages: pages,
+			Offset: offset,
+			Limit:  limit,
+			Total:  total,
 		},
 	}
 }

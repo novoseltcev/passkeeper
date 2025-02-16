@@ -198,18 +198,18 @@ func (c *MockRepositoryGetOwnerCall) DoAndReturn(f func(context.Context, models.
 }
 
 // GetPage mocks base method.
-func (m *MockRepository) GetPage(ctx context.Context, ownerID models.UserID, page, limit uint64) (*secrets.Page[models.Secret], error) {
+func (m *MockRepository) GetPage(ctx context.Context, ownerID models.UserID, limit, offset uint64) (*secrets.Page[models.Secret], error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPage", ctx, ownerID, page, limit)
+	ret := m.ctrl.Call(m, "GetPage", ctx, ownerID, limit, offset)
 	ret0, _ := ret[0].(*secrets.Page[models.Secret])
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetPage indicates an expected call of GetPage.
-func (mr *MockRepositoryMockRecorder) GetPage(ctx, ownerID, page, limit any) *MockRepositoryGetPageCall {
+func (mr *MockRepositoryMockRecorder) GetPage(ctx, ownerID, limit, offset any) *MockRepositoryGetPageCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPage", reflect.TypeOf((*MockRepository)(nil).GetPage), ctx, ownerID, page, limit)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPage", reflect.TypeOf((*MockRepository)(nil).GetPage), ctx, ownerID, limit, offset)
 	return &MockRepositoryGetPageCall{Call: call}
 }
 

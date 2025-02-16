@@ -11,11 +11,11 @@ import (
 //go:generate mockgen -destination=./mocks/service_mocks.go -package=mocks -source=service.go -typed
 type Page[T any] struct {
 	Items []T
-	Pages uint64
+	Total uint64
 }
 
-func NewPage[T any](items []T, pages uint64) *Page[T] {
-	return &Page[T]{Items: items, Pages: pages}
+func NewPage[T any](items []T, total uint64) *Page[T] {
+	return &Page[T]{Items: items, Total: total}
 }
 
 type ISecretData interface {
@@ -35,7 +35,7 @@ type Service interface {
 
 	// GetPage returns a page of owner's secrets with pagination.
 	// If the owner is not found, an error will be returned.
-	GetPage(ctx context.Context, ownerID models.UserID, page, limit uint64) (*Page[models.Secret], error)
+	GetPage(ctx context.Context, ownerID models.UserID, limit, offset uint64) (*Page[models.Secret], error)
 
 	// Delete deletes a secret by its ID.
 	//
@@ -109,9 +109,9 @@ func (s *service) Get(ctx context.Context, id models.SecretID, ownerID models.Us
 }
 
 func (s *service) GetPage(ctx context.Context,
-	ownerID models.UserID, page, limit uint64,
+	ownerID models.UserID, limit, offset uint64,
 ) (*Page[models.Secret], error) {
-	return s.repo.GetPage(ctx, ownerID, page, limit)
+	return s.repo.GetPage(ctx, ownerID, limit, offset)
 }
 
 func (s *service) Create(

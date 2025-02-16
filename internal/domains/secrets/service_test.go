@@ -103,17 +103,17 @@ func TestService_GetPage_Success(t *testing.T) {
 	repo := mocks.NewMockRepository(ctrl)
 	service := secrets.NewService(repo, nil, nil)
 
-	var page, limit uint64 = 1, 10
+	var limit, offset uint64 = 10, 0
 	got := &secrets.Page[models.Secret]{
 		Items: []models.Secret{},
-		Pages: 100,
+		Total: 100,
 	}
 
 	repo.EXPECT().
-		GetPage(gomock.Any(), testOwnerID, page, limit).
+		GetPage(gomock.Any(), testOwnerID, limit, offset).
 		Return(got, nil)
 
-	want, err := service.GetPage(context.Background(), testOwnerID, page, limit)
+	want, err := service.GetPage(context.Background(), testOwnerID, limit, offset)
 	require.NoError(t, err)
 	assert.Equal(t, want, got)
 }
@@ -126,13 +126,13 @@ func TestService_GetPage_Fails(t *testing.T) {
 	repo := mocks.NewMockRepository(ctrl)
 	service := secrets.NewService(repo, nil, nil)
 
-	var page, limit uint64 = 1, 10
+	var limit, offset uint64 = 10, 0
 
 	repo.EXPECT().
-		GetPage(gomock.Any(), testOwnerID, page, limit).
+		GetPage(gomock.Any(), testOwnerID, limit, offset).
 		Return(nil, testutils.Err)
 
-	_, err := service.GetPage(context.Background(), testOwnerID, page, limit)
+	_, err := service.GetPage(context.Background(), testOwnerID, limit, offset)
 	assert.ErrorIs(t, err, testutils.Err)
 }
 

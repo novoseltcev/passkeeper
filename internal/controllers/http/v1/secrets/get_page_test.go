@@ -28,12 +28,10 @@ func TestGetPage_Success(t *testing.T) {
 	service := mocks.NewMockService(ctrl)
 	secrets.AddRoutes(&root.RouterGroup, service, guardMock)
 
-	page := uint64(1)
-	limit := uint64(10)
-	pages := uint64(3)
+	var limit, offset, total uint64 = 10, 0, 30
 
 	service.EXPECT().
-		GetPage(gomock.Any(), testOwnerID, page, limit).
+		GetPage(gomock.Any(), testOwnerID, limit, offset).
 		Return(domain.NewPage([]models.Secret{
 			{
 				ID:   testID,
@@ -41,14 +39,14 @@ func TestGetPage_Success(t *testing.T) {
 				Data: testData,
 				Type: models.SecretTypeFile,
 			},
-		}, pages), nil)
+		}, total), nil)
 
 	apitest.Handler(root.Handler()).
 		Debug().
 		Get("/secrets").
 		QueryParams(map[string]string{
-			"page":  strconv.FormatUint(page, 10),
-			"limit": strconv.FormatUint(limit, 10),
+			"limit":  strconv.FormatUint(limit, 10),
+			"offset": strconv.FormatUint(offset, 10),
 		}).
 		Expect(t).
 		Status(http.StatusOK).
@@ -62,9 +60,9 @@ func TestGetPage_Success(t *testing.T) {
 		 		"type":"file"
 		  	}
 		  ],
-		  "pagination":{"page":%d,"limit":%d,"pages":%d}
+		  "pagination":{"limit":%d,"offset":%d,"total":%d}
 		  
-		}`, testID, testName, page, limit, pages).
+		}`, testID, testName, limit, offset, total).
 		End()
 }
 
@@ -83,31 +81,30 @@ func TestGetPage_Fails_Validate(t *testing.T) {
 			name:    "empty",
 			request: map[string]string{},
 			status:  http.StatusUnprocessableEntity,
+			errs:    []string{"Field validation for 'Limit' failed on the 'required' tag"},
+		},
+		{
+			name:    "not numeric",
+			request: map[string]string{"offset": "a", "limit": "b"},
+			status:  http.StatusBadRequest,
+		},
+		{
+			name:    "offset < 0",
+			request: map[string]string{"offset": "-1", "limit": "1"},
+			status:  http.StatusBadRequest,
+		},
+		{
+			name:    "imit < 1",
+			request: map[string]string{"limit": "0"},
+			status:  http.StatusUnprocessableEntity,
 			errs: []string{
-				"Field validation for 'Page' failed on the 'required' tag",
+				// Validator recognizes 0 as a not setted value
 				"Field validation for 'Limit' failed on the 'required' tag",
 			},
 		},
 		{
-			name:    "not numeric",
-			request: map[string]string{"page": "a", "limit": "b"},
-			status:  http.StatusBadRequest,
-		},
-		{
-			name:    "page < 1", // Validator recognizes 0 as a not setted value
-			request: map[string]string{"page": "0", "limit": "1"},
-			status:  http.StatusUnprocessableEntity,
-			errs:    []string{"Field validation for 'Page' failed on the 'required' tag"},
-		},
-		{
-			name:    "limit < 1", // Validator recognizes 0 as a not setted value
-			request: map[string]string{"page": "1", "limit": "0"},
-			status:  http.StatusUnprocessableEntity,
-			errs:    []string{"Field validation for 'Limit' failed on the 'required' tag"},
-		},
-		{
 			name:    "limit > 100",
-			request: map[string]string{"page": "1", "limit": "101"},
+			request: map[string]string{"limit": "101"},
 			status:  http.StatusUnprocessableEntity,
 			errs:    []string{"Field validation for 'Limit' failed on the 'lte' tag"},
 		},
