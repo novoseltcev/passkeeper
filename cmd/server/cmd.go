@@ -53,7 +53,7 @@ func Cmd() *cobra.Command {
 
 			app := server.NewApp(
 				cfg, logger, db,
-				nil, // TODO: implement token storage
+				repo.NewTokenRepository(db),
 				secrets.NewService(repo.NewSecretRepository(db), hasher, nil),
 				user.NewService(repo.NewUserRepository(db), hasher),
 			)

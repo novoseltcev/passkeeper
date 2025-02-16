@@ -24,9 +24,7 @@ var (
 )
 
 const (
-	accountUUID  = "62822284-5a2a-4a5d-b66e-12d09e0fe79c"
-	sessionUUID1 = "b3055e06-9300-4d6a-9df1-b95e6fefc916"
-	sessionUUID2 = "e065b8b6-6d1e-4d1b-bf58-52b0df58f147"
+	accountUUID = "62822284-5a2a-4a5d-b66e-12d09e0fe79c"
 )
 
 func TestUserRepository_GetByID(t *testing.T) {

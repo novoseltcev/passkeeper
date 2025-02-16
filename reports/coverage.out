@@ -63,9 +63,9 @@ github.com/novoseltcev/passkeeper/internal/repo/secret.go:83:					GetPage			90.9
 github.com/novoseltcev/passkeeper/internal/repo/secret.go:114:					Create			100.0%
 github.com/novoseltcev/passkeeper/internal/repo/secret.go:129:					Update			100.0%
 github.com/novoseltcev/passkeeper/internal/repo/secret.go:139:					Delete			100.0%
-github.com/novoseltcev/passkeeper/internal/repo/token.go:26:					NewTokenRepository	0.0%
-github.com/novoseltcev/passkeeper/internal/repo/token.go:30:					Load			0.0%
-github.com/novoseltcev/passkeeper/internal/repo/token.go:53:					Store			0.0%
+github.com/novoseltcev/passkeeper/internal/repo/token.go:26:					NewTokenRepository	100.0%
+github.com/novoseltcev/passkeeper/internal/repo/token.go:30:					Load			100.0%
+github.com/novoseltcev/passkeeper/internal/repo/token.go:53:					Store			100.0%
 github.com/novoseltcev/passkeeper/internal/repo/user.go:27:					NewUserRepository	100.0%
 github.com/novoseltcev/passkeeper/internal/repo/user.go:31:					GetByID			100.0%
 github.com/novoseltcev/passkeeper/internal/repo/user.go:55:					GetByLogin		85.7%
@@ -97,4 +97,4 @@ github.com/novoseltcev/passkeeper/pkg/pwdhash/bcrypt.go:13:					NewBCrypt		100.0
 github.com/novoseltcev/passkeeper/pkg/pwdhash/bcrypt.go:20:					Generate		100.0%
 github.com/novoseltcev/passkeeper/pkg/pwdhash/bcrypt.go:30:					Compare			100.0%
 github.com/novoseltcev/passkeeper/pkg/testutils/helpers/pg.go:24:				SetupDB			100.0%
-total:												(statements)		81.7%
+total:												(statements)		83.5%
