@@ -24,7 +24,7 @@ func JWT(mngr jwtmanager.Manager, identityKey string) gin.HandlerFunc {
 			return
 		}
 
-		token, err := mngr.ParseToken(tokenString)
+		token, err := mngr.ParseToken(c, tokenString)
 
 		var pErr *jwtmanager.ParseError
 		if err != nil {

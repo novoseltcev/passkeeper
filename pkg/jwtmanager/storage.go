@@ -1,6 +1,9 @@
 package jwtmanager
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 // Token is a JWT token representation.
 //
@@ -15,6 +18,6 @@ type Token struct {
 
 // TokenStorager is a interface for token storage.
 type TokenStorager interface {
-	Load(id string) (*Token, error)
-	Store(token Token) error
+	Load(ctx context.Context, id string) (*Token, error)
+	Store(ctx context.Context, token Token) error
 }

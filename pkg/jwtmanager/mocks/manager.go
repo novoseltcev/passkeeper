@@ -10,6 +10,7 @@
 package mocks
 
 import (
+	context "context"
 	reflect "reflect"
 
 	jwtmanager "github.com/novoseltcev/passkeeper/pkg/jwtmanager"
@@ -41,18 +42,18 @@ func (m *MockManager) EXPECT() *MockManagerMockRecorder {
 }
 
 // GenerateToken mocks base method.
-func (m *MockManager) GenerateToken(subject string) (string, error) {
+func (m *MockManager) GenerateToken(ctx context.Context, subject string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GenerateToken", subject)
+	ret := m.ctrl.Call(m, "GenerateToken", ctx, subject)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GenerateToken indicates an expected call of GenerateToken.
-func (mr *MockManagerMockRecorder) GenerateToken(subject any) *MockManagerGenerateTokenCall {
+func (mr *MockManagerMockRecorder) GenerateToken(ctx, subject any) *MockManagerGenerateTokenCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockManager)(nil).GenerateToken), subject)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockManager)(nil).GenerateToken), ctx, subject)
 	return &MockManagerGenerateTokenCall{Call: call}
 }
 
@@ -68,30 +69,30 @@ func (c *MockManagerGenerateTokenCall) Return(arg0 string, arg1 error) *MockMana
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockManagerGenerateTokenCall) Do(f func(string) (string, error)) *MockManagerGenerateTokenCall {
+func (c *MockManagerGenerateTokenCall) Do(f func(context.Context, string) (string, error)) *MockManagerGenerateTokenCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockManagerGenerateTokenCall) DoAndReturn(f func(string) (string, error)) *MockManagerGenerateTokenCall {
+func (c *MockManagerGenerateTokenCall) DoAndReturn(f func(context.Context, string) (string, error)) *MockManagerGenerateTokenCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // ParseToken mocks base method.
-func (m *MockManager) ParseToken(tokenString string) (*jwtmanager.Token, error) {
+func (m *MockManager) ParseToken(ctx context.Context, tokenString string) (*jwtmanager.Token, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ParseToken", tokenString)
+	ret := m.ctrl.Call(m, "ParseToken", ctx, tokenString)
 	ret0, _ := ret[0].(*jwtmanager.Token)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ParseToken indicates an expected call of ParseToken.
-func (mr *MockManagerMockRecorder) ParseToken(tokenString any) *MockManagerParseTokenCall {
+func (mr *MockManagerMockRecorder) ParseToken(ctx, tokenString any) *MockManagerParseTokenCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseToken", reflect.TypeOf((*MockManager)(nil).ParseToken), tokenString)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseToken", reflect.TypeOf((*MockManager)(nil).ParseToken), ctx, tokenString)
 	return &MockManagerParseTokenCall{Call: call}
 }
 
@@ -107,13 +108,13 @@ func (c *MockManagerParseTokenCall) Return(arg0 *jwtmanager.Token, arg1 error) *
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockManagerParseTokenCall) Do(f func(string) (*jwtmanager.Token, error)) *MockManagerParseTokenCall {
+func (c *MockManagerParseTokenCall) Do(f func(context.Context, string) (*jwtmanager.Token, error)) *MockManagerParseTokenCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockManagerParseTokenCall) DoAndReturn(f func(string) (*jwtmanager.Token, error)) *MockManagerParseTokenCall {
+func (c *MockManagerParseTokenCall) DoAndReturn(f func(context.Context, string) (*jwtmanager.Token, error)) *MockManagerParseTokenCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

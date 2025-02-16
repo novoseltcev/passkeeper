@@ -5,6 +5,7 @@
 package jwtmanager
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -20,8 +21,8 @@ const (
 //go:generate mockgen -source=manager.go -destination=mocks/manager.go -package=mocks -typed
 
 type Manager interface {
-	GenerateToken(subject string) (string, error)
-	ParseToken(tokenString string) (*Token, error)
+	GenerateToken(ctx context.Context, subject string) (string, error)
+	ParseToken(ctx context.Context, tokenString string) (*Token, error)
 }
 
 // Manager is a JWT manager, which can generate and parse JWT tokens.
@@ -51,7 +52,7 @@ func New(key string, opts ...Option) Manager {
 // GenerateToken generates new token.
 //
 // If token not valid or not found in storage, it returns ParseError.
-func (mngr *manager) GenerateToken(subject string) (string, error) {
+func (mngr *manager) GenerateToken(ctx context.Context, subject string) (string, error) {
 	now := time.Now()
 	expAt := now.Add(mngr.exp)
 
@@ -73,7 +74,7 @@ func (mngr *manager) GenerateToken(subject string) (string, error) {
 		}
 
 		claims.ID = uid.String()
-		if err := mngr.storage.Store(Token{
+		if err := mngr.storage.Store(ctx, Token{
 			ID:        claims.ID,
 			Subject:   subject,
 			ExpiresAt: expAt,
@@ -128,14 +129,14 @@ func (mngr *manager) parse(tokenString string) (*Token, error) {
 // ParseToken parses token string and returns token.
 //
 // If token not valid or not found in storage, it returns ParseError.
-func (mngr *manager) ParseToken(tokenString string) (*Token, error) {
+func (mngr *manager) ParseToken(ctx context.Context, tokenString string) (*Token, error) {
 	token, err := mngr.parse(tokenString)
 	if err != nil {
 		return nil, err
 	}
 
 	if mngr.storage != nil {
-		_, err := mngr.storage.Load(token.ID)
+		_, err := mngr.storage.Load(ctx, token.ID)
 		if err != nil {
 			if errors.Is(err, ErrTokenNotFound) {
 				return nil, ParseError{ValidationError: jwt.ValidationError{

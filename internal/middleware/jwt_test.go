@@ -29,7 +29,7 @@ func TestJWT_Success(t *testing.T) {
 	r := gin.New()
 	r.Use(middleware.JWT(mngr, identityKey))
 	r.GET("/test", func(c *gin.Context) { c.Header("X-User-ID", c.GetString(identityKey)) })
-	mngr.EXPECT().ParseToken(testTokenString).Return(&jwtmanager.Token{
+	mngr.EXPECT().ParseToken(gomock.Any(), testTokenString).Return(&jwtmanager.Token{
 		ID:        "123",
 		Subject:   "test",
 		ExpiresAt: time.Now().Add(time.Hour),
@@ -91,7 +91,7 @@ func TestJWT_FailsParseToken(t *testing.T) {
 			mngr := mocks.NewMockManager(ctrl)
 			r.Use(middleware.JWT(mngr, identityKey))
 
-			mngr.EXPECT().ParseToken(testTokenString).Return(nil, tt.err)
+			mngr.EXPECT().ParseToken(gomock.Any(), testTokenString).Return(nil, tt.err)
 
 			apitest.Handler(r.Handler()).
 				Get("/test").

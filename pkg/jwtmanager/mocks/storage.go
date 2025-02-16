@@ -10,6 +10,7 @@
 package mocks
 
 import (
+	context "context"
 	reflect "reflect"
 
 	jwtmanager "github.com/novoseltcev/passkeeper/pkg/jwtmanager"
@@ -41,18 +42,18 @@ func (m *MockTokenStorager) EXPECT() *MockTokenStoragerMockRecorder {
 }
 
 // Load mocks base method.
-func (m *MockTokenStorager) Load(id string) (*jwtmanager.Token, error) {
+func (m *MockTokenStorager) Load(ctx context.Context, id string) (*jwtmanager.Token, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Load", id)
+	ret := m.ctrl.Call(m, "Load", ctx, id)
 	ret0, _ := ret[0].(*jwtmanager.Token)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Load indicates an expected call of Load.
-func (mr *MockTokenStoragerMockRecorder) Load(id any) *MockTokenStoragerLoadCall {
+func (mr *MockTokenStoragerMockRecorder) Load(ctx, id any) *MockTokenStoragerLoadCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Load", reflect.TypeOf((*MockTokenStorager)(nil).Load), id)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Load", reflect.TypeOf((*MockTokenStorager)(nil).Load), ctx, id)
 	return &MockTokenStoragerLoadCall{Call: call}
 }
 
@@ -68,29 +69,29 @@ func (c *MockTokenStoragerLoadCall) Return(arg0 *jwtmanager.Token, arg1 error) *
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockTokenStoragerLoadCall) Do(f func(string) (*jwtmanager.Token, error)) *MockTokenStoragerLoadCall {
+func (c *MockTokenStoragerLoadCall) Do(f func(context.Context, string) (*jwtmanager.Token, error)) *MockTokenStoragerLoadCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockTokenStoragerLoadCall) DoAndReturn(f func(string) (*jwtmanager.Token, error)) *MockTokenStoragerLoadCall {
+func (c *MockTokenStoragerLoadCall) DoAndReturn(f func(context.Context, string) (*jwtmanager.Token, error)) *MockTokenStoragerLoadCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // Store mocks base method.
-func (m *MockTokenStorager) Store(token jwtmanager.Token) error {
+func (m *MockTokenStorager) Store(ctx context.Context, token jwtmanager.Token) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Store", token)
+	ret := m.ctrl.Call(m, "Store", ctx, token)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Store indicates an expected call of Store.
-func (mr *MockTokenStoragerMockRecorder) Store(token any) *MockTokenStoragerStoreCall {
+func (mr *MockTokenStoragerMockRecorder) Store(ctx, token any) *MockTokenStoragerStoreCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Store", reflect.TypeOf((*MockTokenStorager)(nil).Store), token)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Store", reflect.TypeOf((*MockTokenStorager)(nil).Store), ctx, token)
 	return &MockTokenStoragerStoreCall{Call: call}
 }
 
@@ -106,13 +107,13 @@ func (c *MockTokenStoragerStoreCall) Return(arg0 error) *MockTokenStoragerStoreC
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockTokenStoragerStoreCall) Do(f func(jwtmanager.Token) error) *MockTokenStoragerStoreCall {
+func (c *MockTokenStoragerStoreCall) Do(f func(context.Context, jwtmanager.Token) error) *MockTokenStoragerStoreCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockTokenStoragerStoreCall) DoAndReturn(f func(jwtmanager.Token) error) *MockTokenStoragerStoreCall {
+func (c *MockTokenStoragerStoreCall) DoAndReturn(f func(context.Context, jwtmanager.Token) error) *MockTokenStoragerStoreCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

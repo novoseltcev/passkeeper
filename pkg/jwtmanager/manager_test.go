@@ -1,6 +1,7 @@
 package jwtmanager_test
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"strings"
@@ -52,7 +53,7 @@ func TestManager_GenerateToken_Success(t *testing.T) {
 
 		mngr := jwtmanager.New(testKey)
 
-		token, err := mngr.GenerateToken(testutils.STRING)
+		token, err := mngr.GenerateToken(context.Background(), testutils.STRING)
 		require.NoError(t, err)
 
 		header, payload := decodeToken(t, token)
@@ -73,7 +74,7 @@ func TestManager_GenerateToken_Success(t *testing.T) {
 			jwtmanager.WithIssuer(testIssuer),
 		)
 
-		token, err := mngr.GenerateToken(testutils.STRING)
+		token, err := mngr.GenerateToken(context.Background(), testutils.STRING)
 		require.NoError(t, err)
 
 		parts := strings.Split(token, ".")
@@ -98,15 +99,17 @@ func TestManager_GenerateToken_Success(t *testing.T) {
 		storage := mocks.NewMockTokenStorager(ctrl)
 
 		var jti string
-		storage.EXPECT().Store(gomock.Any()).Times(1).DoAndReturn(func(token jwtmanager.Token) error {
-			jti = token.ID
+		storage.EXPECT().
+			Store(gomock.Any(), gomock.Any()).
+			DoAndReturn(func(_ context.Context, token jwtmanager.Token) error {
+				jti = token.ID
 
-			return nil
-		})
+				return nil
+			})
 
 		mngr := jwtmanager.New(testKey, jwtmanager.WithTokenStorage(storage))
 
-		token, err := mngr.GenerateToken(testutils.STRING)
+		token, err := mngr.GenerateToken(context.Background(), testutils.STRING)
 		require.NoError(t, err)
 
 		parts := strings.Split(token, ".")
@@ -125,15 +128,17 @@ func TestManager_WithStorager_GenerateToken_Success(t *testing.T) {
 	storage := mocks.NewMockTokenStorager(ctrl)
 
 	var jti string
-	storage.EXPECT().Store(gomock.Any()).Times(1).DoAndReturn(func(token jwtmanager.Token) error {
-		jti = token.ID
+	storage.EXPECT().
+		Store(gomock.Any(), gomock.Any()).
+		DoAndReturn(func(_ context.Context, token jwtmanager.Token) error {
+			jti = token.ID
 
-		return nil
-	})
+			return nil
+		})
 
 	mngr := jwtmanager.New(testKey, jwtmanager.WithTokenStorage(storage))
 
-	token, err := mngr.GenerateToken(testutils.STRING)
+	token, err := mngr.GenerateToken(context.Background(), testutils.STRING)
 	require.NoError(t, err)
 
 	parts := strings.Split(token, ".")
@@ -149,11 +154,13 @@ func TestManager_WithStorager_GenerateToken_Fails_Save(t *testing.T) {
 	t.Cleanup(ctrl.Finish)
 
 	storage := mocks.NewMockTokenStorager(ctrl)
-	storage.EXPECT().Store(gomock.Any()).Times(1).Return(testutils.Err)
+	storage.EXPECT().
+		Store(gomock.Any(), gomock.Any()).
+		Return(testutils.Err)
 
 	mngr := jwtmanager.New(testKey, jwtmanager.WithTokenStorage(storage))
 
-	_, err := mngr.GenerateToken(testutils.STRING)
+	_, err := mngr.GenerateToken(context.Background(), testutils.STRING)
 	require.ErrorIs(t, err, testutils.Err)
 }
 
@@ -162,7 +169,7 @@ func TestManager_GenerateToken_Fails_Expired(t *testing.T) {
 
 	mngr := jwtmanager.New(testutils.STRING, jwtmanager.WithExpiration(time.Microsecond))
 
-	_, err := mngr.GenerateToken(testutils.STRING)
+	_, err := mngr.GenerateToken(context.Background(), testutils.STRING)
 	assert.ErrorIs(t, err, jwt.ErrTokenExpired)
 }
 
@@ -179,10 +186,10 @@ func TestManager_ParseToken_Success(t *testing.T) {
 		jwtmanager.WithIssuer(testIssuer),
 	)
 
-	tokenString, err := mngr.GenerateToken(testutils.STRING)
+	tokenString, err := mngr.GenerateToken(context.Background(), testutils.STRING)
 	require.NoError(t, err)
 
-	token, err := mngr.ParseToken(tokenString)
+	token, err := mngr.ParseToken(context.Background(), tokenString)
 	require.NoError(t, err)
 
 	assert.Equal(t, &jwtmanager.Token{
@@ -200,12 +207,12 @@ func TestManager_WithStorage_ParseToken_Success(t *testing.T) {
 	storage := mocks.NewMockTokenStorager(ctrl)
 	mngr := jwtmanager.New(testKey, jwtmanager.WithTokenStorage(storage))
 
-	storage.EXPECT().Store(gomock.Any()).Times(1).Return(nil)
-	tokenString, err := mngr.GenerateToken(testutils.STRING)
+	storage.EXPECT().Store(gomock.Any(), gomock.Any()).Return(nil)
+	tokenString, err := mngr.GenerateToken(context.Background(), testutils.STRING)
 	require.NoError(t, err)
 
-	storage.EXPECT().Load(gomock.Any()).Times(1).Return(nil, nil)
-	token, err := mngr.ParseToken(tokenString)
+	storage.EXPECT().Load(gomock.Any(), gomock.Any()).Return(nil, nil)
+	token, err := mngr.ParseToken(context.Background(), tokenString)
 	require.NoError(t, err)
 
 	_, payload := decodeToken(t, tokenString)
@@ -275,7 +282,7 @@ func TestManager_ParseToken_Fails(t *testing.T) {
 				jwtmanager.WithTokenStorage(mocks.NewMockTokenStorager(ctrl)),
 			)
 
-			_, err := mngr.ParseToken(tt.tokenString)
+			_, err := mngr.ParseToken(context.Background(), tt.tokenString)
 			assert.ErrorIs(t, err, tt.err)
 		})
 	}
@@ -289,9 +296,9 @@ func TestManager_ParseToken_Fails_UnknownLoadError(t *testing.T) {
 	storage := mocks.NewMockTokenStorager(ctrl)
 	mngr := jwtmanager.New(testKey, jwtmanager.WithTokenStorage(storage))
 
-	storage.EXPECT().Load(gomock.Any()).Times(1).Return(nil, testutils.Err)
+	storage.EXPECT().Load(gomock.Any(), gomock.Any()).Return(nil, testutils.Err)
 
-	_, err := mngr.ParseToken(testTokenString)
+	_, err := mngr.ParseToken(context.Background(), testTokenString)
 	assert.ErrorIs(t, err, testutils.Err)
 }
 
@@ -303,9 +310,9 @@ func TestManager_ParseToken_Fails_NotFound(t *testing.T) {
 	storage := mocks.NewMockTokenStorager(ctrl)
 	mngr := jwtmanager.New(testKey, jwtmanager.WithTokenStorage(storage))
 
-	storage.EXPECT().Load(gomock.Any()).Times(1).Return(nil, jwtmanager.ErrTokenNotFound)
+	storage.EXPECT().Load(gomock.Any(), gomock.Any()).Return(nil, jwtmanager.ErrTokenNotFound)
 
-	_, err := mngr.ParseToken(testTokenString)
+	_, err := mngr.ParseToken(context.Background(), testTokenString)
 	require.ErrorIs(t, err, jwtmanager.ErrTokenNotFound)
 	assert.ErrorIs(t, err, jwt.ErrTokenExpired)
 }
