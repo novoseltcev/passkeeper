@@ -23,7 +23,6 @@ func TestNewWithAllOpts(t *testing.T) {
 	httpserver.New(nil,
 		httpserver.WithAddr(""),
 		httpserver.WithReadTimeout(0),
-		httpserver.WithWriteTimeout(0),
 	)
 }
 

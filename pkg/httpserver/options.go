@@ -17,10 +17,3 @@ func WithReadTimeout(timeout time.Duration) Option {
 		s.server.ReadTimeout = timeout
 	}
 }
-
-// WithWriteTimeout sets timeout for writing response.
-func WithWriteTimeout(timeout time.Duration) Option {
-	return func(s *Server) {
-		s.server.WriteTimeout = timeout
-	}
-}

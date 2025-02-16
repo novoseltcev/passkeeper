@@ -55,3 +55,6 @@ cover:
 
 docs:
 	pkgsite -http=:8080
+
+pprof:
+	go tool pprof -http=":9090" -seconds=30 http://localhost:8080/srv/pprof/profile

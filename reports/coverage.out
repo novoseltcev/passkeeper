@@ -77,12 +77,11 @@ github.com/novoseltcev/passkeeper/internal/server/auth/utils.go:13:				GetUserID
 github.com/novoseltcev/passkeeper/internal/server/config.go:32:					LoadEnv			0.0%
 github.com/novoseltcev/passkeeper/pkg/httpserver/options.go:11:					WithAddr		100.0%
 github.com/novoseltcev/passkeeper/pkg/httpserver/options.go:18:					WithReadTimeout		100.0%
-github.com/novoseltcev/passkeeper/pkg/httpserver/options.go:25:					WithWriteTimeout	100.0%
-github.com/novoseltcev/passkeeper/pkg/httpserver/options.go:32:					WithTLS			0.0%
-github.com/novoseltcev/passkeeper/pkg/httpserver/server.go:23:					New			100.0%
-github.com/novoseltcev/passkeeper/pkg/httpserver/server.go:42:					Notify			100.0%
-github.com/novoseltcev/passkeeper/pkg/httpserver/server.go:46:					Shutdown		100.0%
-github.com/novoseltcev/passkeeper/pkg/httpserver/server.go:50:					Run			75.0%
+github.com/novoseltcev/passkeeper/pkg/httpserver/options.go:25:					WithTLS			0.0%
+github.com/novoseltcev/passkeeper/pkg/httpserver/server.go:22:					New			100.0%
+github.com/novoseltcev/passkeeper/pkg/httpserver/server.go:40:					Notify			100.0%
+github.com/novoseltcev/passkeeper/pkg/httpserver/server.go:44:					Shutdown		100.0%
+github.com/novoseltcev/passkeeper/pkg/httpserver/server.go:48:					Run			75.0%
 github.com/novoseltcev/passkeeper/pkg/jwtmanager/errors.go:28:					NewParseError		100.0%
 github.com/novoseltcev/passkeeper/pkg/jwtmanager/errors.go:32:					Is			83.3%
 github.com/novoseltcev/passkeeper/pkg/jwtmanager/manager.go:38:					New			100.0%
@@ -97,4 +96,4 @@ github.com/novoseltcev/passkeeper/pkg/pwdhash/bcrypt.go:13:					NewBCrypt		100.0
 github.com/novoseltcev/passkeeper/pkg/pwdhash/bcrypt.go:20:					Generate		100.0%
 github.com/novoseltcev/passkeeper/pkg/pwdhash/bcrypt.go:30:					Compare			100.0%
 github.com/novoseltcev/passkeeper/pkg/testutils/helpers/pg.go:24:				SetupDB			100.0%
-total:												(statements)		83.5%
+total:												(statements)		83.3%

@@ -8,9 +8,8 @@ import (
 )
 
 const (
-	defaultReadTimeout  = 5 * time.Second
-	defaultWriteTimeout = 5 * time.Second
-	defaultAddr         = ":80"
+	defaultReadTimeout = 5 * time.Second
+	defaultAddr        = ":80"
 )
 
 // Server represents HTTP server.
@@ -23,10 +22,9 @@ type Server struct {
 func New(handler http.Handler, opts ...Option) *Server {
 	srv := &Server{
 		server: &http.Server{
-			Handler:      handler,
-			ReadTimeout:  defaultReadTimeout,
-			WriteTimeout: defaultWriteTimeout,
-			Addr:         defaultAddr,
+			Handler:     handler,
+			ReadTimeout: defaultReadTimeout,
+			Addr:        defaultAddr,
 		},
 		notify: make(chan error, 1),
 	}
@@ -48,6 +46,11 @@ func (srv *Server) Shutdown(ctx context.Context) error {
 }
 
 func (srv *Server) Run() {
-	srv.notify <- srv.server.ListenAndServe()
+	if srv.server.TLSConfig == nil {
+		srv.notify <- srv.server.ListenAndServe()
+	} else {
+		srv.notify <- srv.server.ListenAndServeTLS("", "")
+	}
+
 	close(srv.notify)
 }
