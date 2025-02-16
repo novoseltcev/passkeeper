@@ -1,5 +1,5 @@
 github.com/novoseltcev/passkeeper/cmd/server/cmd.go:21:						Cmd			0.0%
-github.com/novoseltcev/passkeeper/cmd/server/cmd.go:73:						initFlags		0.0%
+github.com/novoseltcev/passkeeper/cmd/server/cmd.go:75:						initFlags		0.0%
 github.com/novoseltcev/passkeeper/cmd/server/main.go:16:					init			0.0%
 github.com/novoseltcev/passkeeper/cmd/server/main.go:30:					main			0.0%
 github.com/novoseltcev/passkeeper/internal/controllers/http/common/response/base.go:9:		NewSuccess		100.0%

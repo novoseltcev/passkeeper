@@ -33,15 +33,17 @@ func Cmd() *cobra.Command {
 			}
 
 			logger, err := zapCfg.Build()
-			if err == nil {
+			if err != nil {
 				log.Fatal("failed to build logger", zap.Error(err))
 			}
 			defer logger.Sync() // nolint: errcheck
 			defer zap.RedirectStdLog(logger)()
 
-			if cfg.DB.Dsn == "" {
-				logger.Fatal("database connection string is empty")
+			if err := cfg.LoadEnv(); err != nil {
+				logger.Fatal("failed to load environment variables", zap.Error(err))
 			}
+
+			logger.Debug("config", zap.Any("cfg", cfg))
 
 			db, err := sqlx.Open("pgx", cfg.DB.Dsn)
 			if err != nil {

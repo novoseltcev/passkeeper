@@ -16,7 +16,7 @@ build: build-server
 
 .PHONY: server
 server: $(SERVER_DIR)/server
-	$(SERVER_DIR)/server -d $(DATABASE_DSN)
+	DB_DSN=$(DATABASE_DSN) JWT_SECRET="secret" $(SERVER_DIR)/server -l debug
 
 # make new-migration NAME=init_tables
 new-migration:
