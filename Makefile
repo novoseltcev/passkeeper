@@ -56,5 +56,10 @@ cover:
 docs:
 	pkgsite -http=:8080
 
-pprof:
-	go tool pprof -http=":9090" -seconds=30 http://localhost:8080/srv/pprof/profile
+pprof-cpu:
+	curl -sv http://localhost:8080/srv/pprof/profile?seconds=$(SEC) > reports/profile.pprof
+	go tool pprof -http=":9090" -seconds=$(SEC) reports/profile.pprof
+
+pprof-heap:
+	curl -sv http://localhost:8080/srv/pprof/heap?seconds=$(SEC) > reports/heap.pprof
+	go tool pprof -http=":9090" -seconds=$(SEC) reports/heap.pprof
