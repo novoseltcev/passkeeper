@@ -3,7 +3,6 @@ package secrets
 
 import (
 	"context"
-	"crypto/hmac"
 
 	"github.com/novoseltcev/passkeeper/internal/models"
 )
@@ -77,7 +76,7 @@ type Service interface {
 }
 
 type Hasher interface {
-	Hash(v string) ([]byte, error)
+	Compare(hash, v string) (bool, error)
 }
 
 type Encryptor interface {
@@ -187,12 +186,12 @@ func (s *service) getMySecret(
 }
 
 func (s *service) checkSecretKey(owner *models.User, secretKey string) error {
-	hashedSecretKey, err := s.hasher.Hash(secretKey)
+	ok, err := s.hasher.Compare(owner.SecretKeyHash, secretKey)
 	if err != nil {
 		return err
 	}
 
-	if !hmac.Equal(owner.SecretKeyHash, hashedSecretKey) {
+	if !ok {
 		return ErrInvalidSecretKey
 	}
 

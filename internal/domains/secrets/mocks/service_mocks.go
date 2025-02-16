@@ -359,41 +359,41 @@ func (m *MockHasher) EXPECT() *MockHasherMockRecorder {
 	return m.recorder
 }
 
-// Hash mocks base method.
-func (m *MockHasher) Hash(v string) ([]byte, error) {
+// Compare mocks base method.
+func (m *MockHasher) Compare(hash, v string) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Hash", v)
-	ret0, _ := ret[0].([]byte)
+	ret := m.ctrl.Call(m, "Compare", hash, v)
+	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Hash indicates an expected call of Hash.
-func (mr *MockHasherMockRecorder) Hash(v any) *MockHasherHashCall {
+// Compare indicates an expected call of Compare.
+func (mr *MockHasherMockRecorder) Compare(hash, v any) *MockHasherCompareCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Hash", reflect.TypeOf((*MockHasher)(nil).Hash), v)
-	return &MockHasherHashCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Compare", reflect.TypeOf((*MockHasher)(nil).Compare), hash, v)
+	return &MockHasherCompareCall{Call: call}
 }
 
-// MockHasherHashCall wrap *gomock.Call
-type MockHasherHashCall struct {
+// MockHasherCompareCall wrap *gomock.Call
+type MockHasherCompareCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockHasherHashCall) Return(arg0 []byte, arg1 error) *MockHasherHashCall {
+func (c *MockHasherCompareCall) Return(arg0 bool, arg1 error) *MockHasherCompareCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockHasherHashCall) Do(f func(string) ([]byte, error)) *MockHasherHashCall {
+func (c *MockHasherCompareCall) Do(f func(string, string) (bool, error)) *MockHasherCompareCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockHasherHashCall) DoAndReturn(f func(string) ([]byte, error)) *MockHasherHashCall {
+func (c *MockHasherCompareCall) DoAndReturn(f func(string, string) (bool, error)) *MockHasherCompareCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

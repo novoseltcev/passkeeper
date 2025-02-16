@@ -3,7 +3,6 @@ package user
 
 import (
 	"context"
-	"crypto/hmac"
 	"errors"
 
 	"github.com/novoseltcev/passkeeper/internal/models"
@@ -33,7 +32,8 @@ type Service interface {
 }
 
 type Hasher interface {
-	Hash(v string) ([]byte, error)
+	Generate(v string) (string, error)
+	Compare(hash, v string) (bool, error)
 }
 
 type service struct {
@@ -51,19 +51,19 @@ func (s *service) Login(ctx context.Context, login, password string) (models.Use
 	user, err := s.repo.GetByLogin(ctx, login)
 	if err != nil {
 		if errors.Is(err, ErrUserNotFound) {
-			return "", ErrAutenticationFailed
+			return "", ErrAuthenticationFailed
 		}
 
 		return "", err
 	}
 
-	hashedPwd, err := s.hasher.Hash(password)
+	ok, err := s.hasher.Compare(user.PasswordHash, password)
 	if err != nil {
 		return "", err
 	}
 
-	if !hmac.Equal(user.PasswordHash, hashedPwd) {
-		return "", ErrAutenticationFailed
+	if !ok {
+		return "", ErrAuthenticationFailed
 	}
 
 	return user.ID, nil
@@ -79,12 +79,12 @@ func (s *service) Register(ctx context.Context, login, password, secretKey strin
 		return "", ErrLoginIsBusy
 	}
 
-	hashedPwd, err := s.hasher.Hash(password)
+	hashedPwd, err := s.hasher.Generate(password)
 	if err != nil {
 		return "", err
 	}
 
-	hashedSecretKey, err := s.hasher.Hash(secretKey)
+	hashedSecretKey, err := s.hasher.Generate(secretKey)
 	if err != nil {
 		return "", err
 	}
@@ -98,12 +98,12 @@ func (s *service) VerifySecret(ctx context.Context, ownerID models.UserID, secre
 		return err
 	}
 
-	hashedSecretKey, err := s.hasher.Hash(secretKey)
+	ok, err := s.hasher.Compare(owner.SecretKeyHash, secretKey)
 	if err != nil {
 		return err
 	}
 
-	if !hmac.Equal(owner.SecretKeyHash, hashedSecretKey) {
+	if !ok {
 		return ErrInvalidSecretKey
 	}
 

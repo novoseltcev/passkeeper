@@ -15,15 +15,12 @@ import (
 )
 
 const (
-	testID        = models.UserID("test-id")
-	testLogin     = "test-login"
-	testPassword  = "test-password"
-	testSecretKey = "test-secret-key"
-)
-
-var (
-	testPasswordHash  = []byte("password-hash")
-	testSecretKeyHash = []byte("secret-hash")
+	testID            = models.UserID("test-id")
+	testLogin         = "test-login"
+	testPassword      = "test-password"
+	testSecretKey     = "test-secret-key"
+	testPasswordHash  = "password-hash"
+	testSecretKeyHash = "secret-hash"
 )
 
 func TestService_Login_Success(t *testing.T) {
@@ -43,8 +40,8 @@ func TestService_Login_Success(t *testing.T) {
 		}, nil)
 
 	hasher.EXPECT().
-		Hash(testPassword).
-		Return(testPasswordHash, nil)
+		Compare(testPasswordHash, testPassword).
+		Return(true, nil)
 
 	id, err := service.Login(context.Background(), testLogin, testPassword)
 	require.NoError(t, err)
@@ -64,7 +61,7 @@ func TestService_Login_Fails_Get(t *testing.T) {
 		{
 			name: "not found",
 			got:  user.ErrUserNotFound,
-			want: user.ErrAutenticationFailed,
+			want: user.ErrAuthenticationFailed,
 		},
 		{
 			name: "other",
@@ -89,7 +86,7 @@ func TestService_Login_Fails_Get(t *testing.T) {
 	}
 }
 
-func TestService_Login_Fails_Hash(t *testing.T) {
+func TestService_Login_Fails_HashErr(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -100,11 +97,11 @@ func TestService_Login_Fails_Hash(t *testing.T) {
 
 	repo.EXPECT().
 		GetByLogin(gomock.Any(), testLogin).
-		Return(&models.User{}, nil)
+		Return(&models.User{PasswordHash: testPasswordHash}, nil)
 
 	hasher.EXPECT().
-		Hash(testPassword).
-		Return(nil, testutils.Err)
+		Compare(testPasswordHash, testPassword).
+		Return(false, testutils.Err)
 
 	_, err := service.Login(context.Background(), testLogin, testPassword)
 	assert.ErrorIs(t, err, testutils.Err)
@@ -123,15 +120,15 @@ func TestService_Login_Fails_CheckPassword(t *testing.T) {
 		GetByLogin(gomock.Any(), testLogin).
 		Return(&models.User{
 			ID:           testID,
-			PasswordHash: []byte("other"),
+			PasswordHash: testPasswordHash,
 		}, nil)
 
 	hasher.EXPECT().
-		Hash(testPassword).
-		Return(testPasswordHash, nil)
+		Compare(testPasswordHash, testPassword).
+		Return(false, nil)
 
 	_, err := service.Login(context.Background(), testLogin, testPassword)
-	assert.ErrorIs(t, err, user.ErrAutenticationFailed)
+	assert.ErrorIs(t, err, user.ErrAuthenticationFailed)
 }
 
 func TestService_Register_Success(t *testing.T) {
@@ -148,11 +145,11 @@ func TestService_Register_Success(t *testing.T) {
 		Return(nil, user.ErrUserNotFound)
 
 	hasher.EXPECT().
-		Hash(testPassword).
+		Generate(testPassword).
 		Return(testPasswordHash, nil)
 
 	hasher.EXPECT().
-		Hash(testSecretKey).
+		Generate(testSecretKey).
 		Return(testSecretKeyHash, nil)
 
 	repo.EXPECT().
@@ -214,8 +211,8 @@ func TestService_Register_Fails_HashPassword(t *testing.T) {
 		Return(nil, user.ErrUserNotFound)
 
 	hasher.EXPECT().
-		Hash(testPassword).
-		Return(nil, testutils.Err)
+		Generate(testPassword).
+		Return("", testutils.Err)
 
 	_, err := service.Register(context.Background(), testLogin, testPassword, testSecretKey)
 	assert.ErrorIs(t, err, testutils.Err)
@@ -235,12 +232,12 @@ func TestService_Register_Fails_HashSecretKey(t *testing.T) {
 		Return(nil, user.ErrUserNotFound)
 
 	hasher.EXPECT().
-		Hash(testPassword).
+		Generate(testPassword).
 		Return(testPasswordHash, nil)
 
 	hasher.EXPECT().
-		Hash(testSecretKey).
-		Return(nil, testutils.Err)
+		Generate(testSecretKey).
+		Return("", testutils.Err)
 
 	_, err := service.Register(context.Background(), testLogin, testPassword, testSecretKey)
 	assert.ErrorIs(t, err, testutils.Err)
@@ -260,11 +257,11 @@ func TestService_Register_Fails_Create(t *testing.T) {
 		Return(nil, user.ErrUserNotFound)
 
 	hasher.EXPECT().
-		Hash(testPassword).
+		Generate(testPassword).
 		Return(testPasswordHash, nil)
 
 	hasher.EXPECT().
-		Hash(testSecretKey).
+		Generate(testSecretKey).
 		Return(testSecretKeyHash, nil)
 
 	repo.EXPECT().
@@ -296,8 +293,8 @@ func TestService_VerifySecret_Success(t *testing.T) {
 		}, nil)
 
 	hasher.EXPECT().
-		Hash(testSecretKey).
-		Return(testSecretKeyHash, nil)
+		Compare(testSecretKeyHash, testSecretKey).
+		Return(true, nil)
 
 	err := service.VerifySecret(context.Background(), testID, testSecretKey)
 	require.NoError(t, err)
@@ -319,7 +316,7 @@ func TestService_VerifySecret_Fails_Get(t *testing.T) {
 	assert.ErrorIs(t, err, testutils.Err)
 }
 
-func TestService_VerifySecret_Fails_Hash(t *testing.T) {
+func TestService_VerifySecret_Fails_HashErr(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -330,17 +327,17 @@ func TestService_VerifySecret_Fails_Hash(t *testing.T) {
 
 	repo.EXPECT().
 		GetByID(gomock.Any(), testID).
-		Return(&models.User{}, nil)
+		Return(&models.User{SecretKeyHash: testSecretKeyHash}, nil)
 
 	hasher.EXPECT().
-		Hash(testSecretKey).
-		Return(nil, testutils.Err)
+		Compare(testSecretKeyHash, testSecretKey).
+		Return(false, testutils.Err)
 
 	err := service.VerifySecret(context.Background(), testID, testSecretKey)
 	assert.ErrorIs(t, err, testutils.Err)
 }
 
-func TestService_VerifySecret_Fails_CheckSecretKey(t *testing.T) {
+func TestService_VerifySecret_Fails_Compare(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -353,12 +350,12 @@ func TestService_VerifySecret_Fails_CheckSecretKey(t *testing.T) {
 		GetByID(gomock.Any(), testID).
 		Return(&models.User{
 			ID:            testID,
-			SecretKeyHash: []byte("other"),
+			SecretKeyHash: testSecretKeyHash,
 		}, nil)
 
 	hasher.EXPECT().
-		Hash(testSecretKey).
-		Return(testSecretKeyHash, nil)
+		Compare(testSecretKeyHash, testSecretKey).
+		Return(false, nil)
 
 	err := service.VerifySecret(context.Background(), testID, testSecretKey)
 	assert.ErrorIs(t, err, user.ErrInvalidSecretKey)

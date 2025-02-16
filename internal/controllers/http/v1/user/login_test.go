@@ -152,7 +152,7 @@ func TestLogin_Fails_Login(t *testing.T) {
 	}{
 		{
 			name:   "authentication failed",
-			err:    domain.ErrAutenticationFailed,
+			err:    domain.ErrAuthenticationFailed,
 			status: http.StatusUnauthorized,
 		},
 		{

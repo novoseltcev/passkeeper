@@ -38,8 +38,8 @@ func TestSecretRepository_GetOwner(t *testing.T) {
 		assert.Equal(t, &models.User{
 			ID:            models.UserID(accountUUID),
 			Login:         "test@example.com",
-			PasswordHash:  []byte{0x12, 0x34},
-			SecretKeyHash: []byte{0x45, 0x67},
+			PasswordHash:  "1234",
+			SecretKeyHash: "4567",
 		}, user)
 	})
 
@@ -80,7 +80,7 @@ func TestSecretRepository_Get(t *testing.T) {
 			Data: []byte{0xde, 0xff, 0x12, 0x34},
 			Owner: &models.User{
 				ID:            models.UserID(accountUUID),
-				SecretKeyHash: []byte{0x45, 0x67},
+				SecretKeyHash: "4567",
 			},
 		}, secret)
 	})

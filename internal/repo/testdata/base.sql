@@ -1,6 +1,6 @@
 INSERT INTO accounts (uuid, login, password_hash, secret_key_hash) VALUES
-    ('62822284-5a2a-4a5d-b66e-12d09e0fe79c', 'test@example.com', decode('1234', 'hex'), decode('4567', 'hex')),
-    ('08108e22-a2d8-4ce7-abbb-13d91dacc758', 'test@test.com', decode('4321', 'hex'), decode('7654', 'hex'));
+    ('62822284-5a2a-4a5d-b66e-12d09e0fe79c', 'test@example.com', '1234', '4567'),
+    ('08108e22-a2d8-4ce7-abbb-13d91dacc758', 'test@test.com', '4321', '7654');
 
 INSERT INTO sessions (uuid, account_uuid, created_at, expires_at) VALUES
     ('b3055e06-9300-4d6a-9df1-b95e6fefc916', '62822284-5a2a-4a5d-b66e-12d09e0fe79c', now(), now() + interval '1 hour'),

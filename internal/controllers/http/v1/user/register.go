@@ -43,7 +43,7 @@ func Register(service domain.Service, jwt jwtmanager.Manager) gin.HandlerFunc {
 			return
 		}
 
-		token, err := jwt.GenerateToken(string(id))
+		token, err := jwt.GenerateToken(c, string(id))
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 

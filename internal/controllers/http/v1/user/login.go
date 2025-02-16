@@ -33,7 +33,7 @@ func Login(service domain.Service, jwt jwtmanager.Manager) gin.HandlerFunc {
 
 		id, err := service.Login(c, body.Login, body.Password)
 		if err != nil {
-			if errors.Is(err, domain.ErrAutenticationFailed) {
+			if errors.Is(err, domain.ErrAuthenticationFailed) {
 				c.AbortWithStatus(http.StatusUnauthorized)
 			} else {
 				c.AbortWithStatus(http.StatusInternalServerError)

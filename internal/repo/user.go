@@ -18,8 +18,8 @@ type userRepository struct {
 type userInDB struct {
 	ID            string `db:"uuid"`
 	Login         string `db:"login"`
-	PasswordHash  []byte `db:"password_hash"`
-	SecretKeyHash []byte `db:"secret_key_hash"`
+	PasswordHash  string `db:"password_hash"`
+	SecretKeyHash string `db:"secret_key_hash"`
 }
 
 var _ domain.Repository = (*userRepository)(nil)

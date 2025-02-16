@@ -21,7 +21,7 @@ type secretInDB struct {
 	Type          int    `db:"type"`
 	EncryptedData []byte `db:"encrypted_data"`
 	Owner         string `db:"owner_uuid"`
-	SecretKeyHash []byte `db:"secret_key_hash"`
+	SecretKeyHash string `db:"secret_key_hash"`
 }
 
 func (s secretInDB) ToDomain() *models.Secret {

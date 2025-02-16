@@ -5,12 +5,12 @@ type (
 	User   struct {
 		ID            UserID
 		Login         string
-		PasswordHash  []byte
-		SecretKeyHash []byte
+		PasswordHash  string
+		SecretKeyHash string
 	}
 )
 
-func NewUser(login string, pwdHash, secretKeyHash []byte) *User {
+func NewUser(login, pwdHash, secretKeyHash string) *User {
 	return &User{
 		Login:         login,
 		PasswordHash:  pwdHash,

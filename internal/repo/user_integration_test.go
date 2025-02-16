@@ -43,8 +43,8 @@ func TestUserRepository_GetByID(t *testing.T) {
 		assert.Equal(t, &models.User{
 			ID:            models.UserID(accountUUID),
 			Login:         "test@example.com",
-			PasswordHash:  []byte{0x12, 0x34},
-			SecretKeyHash: []byte{0x45, 0x67},
+			PasswordHash:  "1234",
+			SecretKeyHash: "4567",
 		}, user)
 	})
 
@@ -80,8 +80,8 @@ func TestUserRepository_GetByLogin(t *testing.T) {
 		assert.Equal(t, &models.User{
 			ID:            models.UserID(accountUUID),
 			Login:         "test@example.com",
-			PasswordHash:  []byte{0x12, 0x34},
-			SecretKeyHash: []byte{0x45, 0x67},
+			PasswordHash:  "1234",
+			SecretKeyHash: "4567",
 		}, user)
 	})
 
@@ -104,8 +104,8 @@ func TestUserRepository_CreateAccount(t *testing.T) {
 
 		userID, err := repo.CreateAccount(ctx, &models.User{
 			Login:         "new@example.com",
-			PasswordHash:  []byte("some-password"),
-			SecretKeyHash: []byte("some-secret-key"),
+			PasswordHash:  "some-password",
+			SecretKeyHash: "some-secret-key",
 		})
 		require.NoError(t, err)
 		assert.NoError(t, uuid.Validate(string(userID)))
@@ -116,8 +116,8 @@ func TestUserRepository_CreateAccount(t *testing.T) {
 
 		_, err := repo.CreateAccount(ctx, &models.User{
 			Login:         "test@example.com",
-			PasswordHash:  []byte("some-password"),
-			SecretKeyHash: []byte("some-secret-key"),
+			PasswordHash:  "some-password",
+			SecretKeyHash: "some-secret-key",
 		})
 
 		var pgErr *pgconn.PgError

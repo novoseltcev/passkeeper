@@ -35,7 +35,7 @@ func TestRegister_Success(t *testing.T) {
 		Return(testID, nil)
 
 	jwt.EXPECT().
-		GenerateToken(string(testID)).
+		GenerateToken(gomock.Any(), string(testID)).
 		Return(testToken, nil)
 
 	apitest.Handler(root.Handler()).
@@ -208,7 +208,7 @@ func TestRegister_Fails_GenerateToken(t *testing.T) {
 		Return(testID, nil)
 
 	jwt.EXPECT().
-		GenerateToken(gomock.Any()).
+		GenerateToken(gomock.Any(), gomock.Any()).
 		Return("", testutils.Err)
 
 	apitest.Handler(root.Handler()).
