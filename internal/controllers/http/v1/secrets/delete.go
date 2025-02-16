@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/novoseltcev/passkeeper/internal/app/auth"
 	domain "github.com/novoseltcev/passkeeper/internal/domains/secrets"
 	"github.com/novoseltcev/passkeeper/internal/models"
-	"github.com/novoseltcev/passkeeper/internal/server/auth"
 )
 
 func Delete(service domain.Service) func(c *gin.Context) {

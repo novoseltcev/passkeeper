@@ -7,10 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 
+	"github.com/novoseltcev/passkeeper/internal/app/auth"
 	"github.com/novoseltcev/passkeeper/internal/controllers/http/common/response"
 	domain "github.com/novoseltcev/passkeeper/internal/domains/secrets"
 	"github.com/novoseltcev/passkeeper/internal/models"
-	"github.com/novoseltcev/passkeeper/internal/server/auth"
 )
 
 func addSecret[T any](
@@ -34,7 +34,7 @@ func addSecret[T any](
 
 	id, err := fn(c, ownerID, &body)
 	if err != nil {
-		if errors.Is(err, domain.ErrInvalidSecretKey) {
+		if errors.Is(err, domain.ErrInvalidPassphrase) {
 			c.AbortWithStatus(http.StatusConflict)
 		} else {
 			c.AbortWithError(http.StatusInternalServerError, err)
@@ -49,7 +49,7 @@ func addSecret[T any](
 func AddPassword(service domain.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		addSecret(c, func(c *gin.Context, ownerID models.UserID, body *PasswordSecretData) (models.SecretID, error) {
-			return service.Create(c, ownerID, body.SecretKey, body.Name, &domain.PasswordData{
+			return service.Create(c, ownerID, body.Passphrase, body.Name, &domain.PasswordData{
 				Login:    body.Login,
 				Password: body.Password,
 				Meta:     body.Meta,
@@ -61,7 +61,7 @@ func AddPassword(service domain.Service) func(c *gin.Context) {
 func AddCard(service domain.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		addSecret(c, func(c *gin.Context, ownerID models.UserID, body *CardSecretData) (models.SecretID, error) {
-			return service.Create(c, ownerID, body.SecretKey, body.Name, &domain.CardData{
+			return service.Create(c, ownerID, body.Passphrase, body.Name, &domain.CardData{
 				Number: body.Number,
 				Holder: body.Holder,
 				Exp:    body.Exp,
@@ -75,7 +75,7 @@ func AddCard(service domain.Service) func(c *gin.Context) {
 func AddText(service domain.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		addSecret(c, func(c *gin.Context, ownerID models.UserID, body *TextSecretData) (models.SecretID, error) {
-			return service.Create(c, ownerID, body.SecretKey, body.Name, &domain.TextData{
+			return service.Create(c, ownerID, body.Passphrase, body.Name, &domain.TextData{
 				Content: body.Content,
 				Meta:    body.Meta,
 			})
@@ -86,7 +86,7 @@ func AddText(service domain.Service) func(c *gin.Context) {
 func AddFile(service domain.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		addSecret(c, func(c *gin.Context, ownerID models.UserID, body *FileSecretData) (models.SecretID, error) {
-			return service.Create(c, ownerID, body.SecretKey, body.Name, &domain.FileData{
+			return service.Create(c, ownerID, body.Passphrase, body.Name, &domain.FileData{
 				Filename: body.Filename,
 				Content:  body.Content,
 				Meta:     body.Meta,

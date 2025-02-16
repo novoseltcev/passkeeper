@@ -10,11 +10,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
+	"github.com/novoseltcev/passkeeper/internal/app/auth"
 	"github.com/novoseltcev/passkeeper/internal/controllers/http/common/response"
 	"github.com/novoseltcev/passkeeper/internal/controllers/http/v1/user"
 	domain "github.com/novoseltcev/passkeeper/internal/domains/user"
 	domainmocks "github.com/novoseltcev/passkeeper/internal/domains/user/mocks"
-	"github.com/novoseltcev/passkeeper/internal/server/auth"
 	"github.com/novoseltcev/passkeeper/pkg/testutils"
 )
 
@@ -33,13 +33,13 @@ func TestVerify_Success(t *testing.T) {
 	user.AddRoutes(&root.RouterGroup, service, nil, guardMock)
 
 	service.EXPECT().
-		VerifySecret(gomock.Any(), testID, testSecretKey).
+		VerifyPassphrase(gomock.Any(), testID, testPassphrase).
 		Return(nil)
 
 	apitest.Handler(root.Handler()).
 		Debug().
 		Post("/user/verify-secret").
-		Bodyf(`{"secretKey":"%s"}`, testSecretKey).
+		Bodyf(`{"passphrase":"%s"}`, testPassphrase).
 		Expect(t).
 		Status(http.StatusNoContent).
 		End()
@@ -63,13 +63,13 @@ func TestVerify_Fails_Validate(t *testing.T) {
 			name:   "empty body",
 			body:   `{}`,
 			status: http.StatusUnprocessableEntity,
-			errs:   []string{"Field validation for 'SecretKey' failed on the 'required' tag"},
+			errs:   []string{"Field validation for 'Passphrase' failed on the 'required' tag"},
 		},
 		{
 			name:   "empty fields",
-			body:   `{"secretKey":""}`,
+			body:   `{"passphrase":""}`,
 			status: http.StatusUnprocessableEntity,
-			errs:   []string{"Field validation for 'SecretKey' failed on the 'required' tag"},
+			errs:   []string{"Field validation for 'Passphrase' failed on the 'required' tag"},
 		},
 	}
 
@@ -110,8 +110,8 @@ func TestVerify_Fails_Verify(t *testing.T) {
 		status int
 	}{
 		{
-			name:   "invalid secret key",
-			err:    domain.ErrInvalidSecretKey,
+			name:   "invalid passphrase",
+			err:    domain.ErrInvalidPassphrase,
 			status: http.StatusConflict,
 		},
 		{
@@ -129,14 +129,14 @@ func TestVerify_Fails_Verify(t *testing.T) {
 			user.AddRoutes(&root.RouterGroup, service, nil, guardMock)
 
 			service.EXPECT().
-				VerifySecret(gomock.Any(), gomock.Any(), gomock.Any()).
+				VerifyPassphrase(gomock.Any(), gomock.Any(), gomock.Any()).
 				Return(tt.err)
 
 			apitest.New(tt.name).
 				Handler(root.Handler()).
 				Debug().
 				Post("/user/verify-secret").
-				Body(`{"secretKey": "testSecretKey"}`).
+				Body(`{"passphrase": "testPassphrase"}`).
 				Expect(t).
 				Status(tt.status).
 				End()

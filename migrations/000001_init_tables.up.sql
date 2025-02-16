@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS accounts (
     uuid UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     login VARCHAR NOT NULL UNIQUE,
     password_hash VARCHAR NOT NULL,
-    secret_key_hash VARCHAR NOT NULL,
+    passphrase_hash VARCHAR NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NULL
 );

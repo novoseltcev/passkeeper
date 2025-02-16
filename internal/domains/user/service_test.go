@@ -15,12 +15,12 @@ import (
 )
 
 const (
-	testID            = models.UserID("test-id")
-	testLogin         = "test-login"
-	testPassword      = "test-password"
-	testSecretKey     = "test-secret-key"
-	testPasswordHash  = "password-hash"
-	testSecretKeyHash = "secret-hash"
+	testID             = models.UserID("test-id")
+	testLogin          = "test-login"
+	testPassword       = "test-password"
+	testPassphrase     = "test-passphrase"
+	testPasswordHash   = "password-hash"
+	testPassphraseHash = "passphrase-hash"
 )
 
 func TestService_Login_Success(t *testing.T) {
@@ -149,18 +149,18 @@ func TestService_Register_Success(t *testing.T) {
 		Return(testPasswordHash, nil)
 
 	hasher.EXPECT().
-		Generate(testSecretKey).
-		Return(testSecretKeyHash, nil)
+		Generate(testPassphrase).
+		Return(testPassphraseHash, nil)
 
 	repo.EXPECT().
 		CreateAccount(gomock.Any(), &models.User{
-			Login:         testLogin,
-			PasswordHash:  testPasswordHash,
-			SecretKeyHash: testSecretKeyHash,
+			Login:          testLogin,
+			PasswordHash:   testPasswordHash,
+			PassphraseHash: testPassphraseHash,
 		}).
 		Return(testID, nil)
 
-	id, err := service.Register(context.Background(), testLogin, testPassword, testSecretKey)
+	id, err := service.Register(context.Background(), testLogin, testPassword, testPassphrase)
 	require.NoError(t, err)
 	assert.Equal(t, testID, id)
 }
@@ -177,7 +177,7 @@ func TestService_Register_Fails_Get(t *testing.T) {
 		GetByLogin(gomock.Any(), testLogin).
 		Return(nil, testutils.Err)
 
-	_, err := service.Register(context.Background(), testLogin, testPassword, testSecretKey)
+	_, err := service.Register(context.Background(), testLogin, testPassword, testPassphrase)
 	assert.ErrorIs(t, err, testutils.Err)
 }
 
@@ -193,7 +193,7 @@ func TestService_Register_Fails_LoginIsBusy(t *testing.T) {
 		GetByLogin(gomock.Any(), testLogin).
 		Return(&models.User{}, nil)
 
-	_, err := service.Register(context.Background(), testLogin, testPassword, testSecretKey)
+	_, err := service.Register(context.Background(), testLogin, testPassword, testPassphrase)
 	assert.ErrorIs(t, err, user.ErrLoginIsBusy)
 }
 
@@ -214,11 +214,11 @@ func TestService_Register_Fails_HashPassword(t *testing.T) {
 		Generate(testPassword).
 		Return("", testutils.Err)
 
-	_, err := service.Register(context.Background(), testLogin, testPassword, testSecretKey)
+	_, err := service.Register(context.Background(), testLogin, testPassword, testPassphrase)
 	assert.ErrorIs(t, err, testutils.Err)
 }
 
-func TestService_Register_Fails_HashSecretKey(t *testing.T) {
+func TestService_Register_Fails_HashPassphrase(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -236,10 +236,10 @@ func TestService_Register_Fails_HashSecretKey(t *testing.T) {
 		Return(testPasswordHash, nil)
 
 	hasher.EXPECT().
-		Generate(testSecretKey).
+		Generate(testPassphrase).
 		Return("", testutils.Err)
 
-	_, err := service.Register(context.Background(), testLogin, testPassword, testSecretKey)
+	_, err := service.Register(context.Background(), testLogin, testPassword, testPassphrase)
 	assert.ErrorIs(t, err, testutils.Err)
 }
 
@@ -261,18 +261,18 @@ func TestService_Register_Fails_Create(t *testing.T) {
 		Return(testPasswordHash, nil)
 
 	hasher.EXPECT().
-		Generate(testSecretKey).
-		Return(testSecretKeyHash, nil)
+		Generate(testPassphrase).
+		Return(testPassphraseHash, nil)
 
 	repo.EXPECT().
 		CreateAccount(gomock.Any(), &models.User{
-			Login:         testLogin,
-			PasswordHash:  testPasswordHash,
-			SecretKeyHash: testSecretKeyHash,
+			Login:          testLogin,
+			PasswordHash:   testPasswordHash,
+			PassphraseHash: testPassphraseHash,
 		}).
 		Return("", testutils.Err)
 
-	_, err := service.Register(context.Background(), testLogin, testPassword, testSecretKey)
+	_, err := service.Register(context.Background(), testLogin, testPassword, testPassphrase)
 	assert.ErrorIs(t, err, testutils.Err)
 }
 
@@ -288,15 +288,15 @@ func TestService_VerifySecret_Success(t *testing.T) {
 	repo.EXPECT().
 		GetByID(gomock.Any(), testID).
 		Return(&models.User{
-			ID:            testID,
-			SecretKeyHash: testSecretKeyHash,
+			ID:             testID,
+			PassphraseHash: testPassphraseHash,
 		}, nil)
 
 	hasher.EXPECT().
-		Compare(testSecretKeyHash, testSecretKey).
+		Compare(testPassphraseHash, testPassphrase).
 		Return(true, nil)
 
-	err := service.VerifySecret(context.Background(), testID, testSecretKey)
+	err := service.VerifyPassphrase(context.Background(), testID, testPassphrase)
 	require.NoError(t, err)
 }
 
@@ -312,7 +312,7 @@ func TestService_VerifySecret_Fails_Get(t *testing.T) {
 		GetByID(gomock.Any(), testID).
 		Return(nil, testutils.Err)
 
-	err := service.VerifySecret(context.Background(), testID, testSecretKey)
+	err := service.VerifyPassphrase(context.Background(), testID, testPassphrase)
 	assert.ErrorIs(t, err, testutils.Err)
 }
 
@@ -327,13 +327,13 @@ func TestService_VerifySecret_Fails_HashErr(t *testing.T) {
 
 	repo.EXPECT().
 		GetByID(gomock.Any(), testID).
-		Return(&models.User{SecretKeyHash: testSecretKeyHash}, nil)
+		Return(&models.User{PassphraseHash: testPassphraseHash}, nil)
 
 	hasher.EXPECT().
-		Compare(testSecretKeyHash, testSecretKey).
+		Compare(testPassphraseHash, testPassphrase).
 		Return(false, testutils.Err)
 
-	err := service.VerifySecret(context.Background(), testID, testSecretKey)
+	err := service.VerifyPassphrase(context.Background(), testID, testPassphrase)
 	assert.ErrorIs(t, err, testutils.Err)
 }
 
@@ -349,14 +349,14 @@ func TestService_VerifySecret_Fails_Compare(t *testing.T) {
 	repo.EXPECT().
 		GetByID(gomock.Any(), testID).
 		Return(&models.User{
-			ID:            testID,
-			SecretKeyHash: testSecretKeyHash,
+			ID:             testID,
+			PassphraseHash: testPassphraseHash,
 		}, nil)
 
 	hasher.EXPECT().
-		Compare(testSecretKeyHash, testSecretKey).
+		Compare(testPassphraseHash, testPassphrase).
 		Return(false, nil)
 
-	err := service.VerifySecret(context.Background(), testID, testSecretKey)
-	assert.ErrorIs(t, err, user.ErrInvalidSecretKey)
+	err := service.VerifyPassphrase(context.Background(), testID, testPassphrase)
+	assert.ErrorIs(t, err, user.ErrInvalidPassphrase)
 }

@@ -143,18 +143,18 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockService) Create(ctx context.Context, ownerID models.UserID, secretKey, name string, data secrets.ISecretData) (models.SecretID, error) {
+func (m *MockService) Create(ctx context.Context, ownerID models.UserID, passphrase, name string, data secrets.ISecretData) (models.SecretID, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, ownerID, secretKey, name, data)
+	ret := m.ctrl.Call(m, "Create", ctx, ownerID, passphrase, name, data)
 	ret0, _ := ret[0].(models.SecretID)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockServiceMockRecorder) Create(ctx, ownerID, secretKey, name, data any) *MockServiceCreateCall {
+func (mr *MockServiceMockRecorder) Create(ctx, ownerID, passphrase, name, data any) *MockServiceCreateCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockService)(nil).Create), ctx, ownerID, secretKey, name, data)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockService)(nil).Create), ctx, ownerID, passphrase, name, data)
 	return &MockServiceCreateCall{Call: call}
 }
 
@@ -298,17 +298,17 @@ func (c *MockServiceGetPageCall) DoAndReturn(f func(context.Context, models.User
 }
 
 // Update mocks base method.
-func (m *MockService) Update(ctx context.Context, id models.SecretID, ownerID models.UserID, secretKey, name string, data secrets.ISecretData) error {
+func (m *MockService) Update(ctx context.Context, id models.SecretID, ownerID models.UserID, passphrase, name string, data secrets.ISecretData) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", ctx, id, ownerID, secretKey, name, data)
+	ret := m.ctrl.Call(m, "Update", ctx, id, ownerID, passphrase, name, data)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockServiceMockRecorder) Update(ctx, id, ownerID, secretKey, name, data any) *MockServiceUpdateCall {
+func (mr *MockServiceMockRecorder) Update(ctx, id, ownerID, passphrase, name, data any) *MockServiceUpdateCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockService)(nil).Update), ctx, id, ownerID, secretKey, name, data)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockService)(nil).Update), ctx, id, ownerID, passphrase, name, data)
 	return &MockServiceUpdateCall{Call: call}
 }
 
@@ -486,17 +486,17 @@ func (m *MockEncryptorFactory) EXPECT() *MockEncryptorFactoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockEncryptorFactory) Create(secretKey string) secrets.Encryptor {
+func (m *MockEncryptorFactory) Create(passphrase string) secrets.Encryptor {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", secretKey)
+	ret := m.ctrl.Call(m, "Create", passphrase)
 	ret0, _ := ret[0].(secrets.Encryptor)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockEncryptorFactoryMockRecorder) Create(secretKey any) *MockEncryptorFactoryCreateCall {
+func (mr *MockEncryptorFactoryMockRecorder) Create(passphrase any) *MockEncryptorFactoryCreateCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockEncryptorFactory)(nil).Create), secretKey)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockEncryptorFactory)(nil).Create), passphrase)
 	return &MockEncryptorFactoryCreateCall{Call: call}
 }
 

@@ -46,30 +46,30 @@ type Service interface {
 
 	// CreateText creates a new text secret.
 	//
-	// Its validate secretKey and encrypt data.
+	// Its validate passphrase and encrypt data.
 	// Domain errors:
-	// - ErrInvalidSecretKey
+	// - ErrInvalidPassphrase
 	Create(
 		ctx context.Context,
 		ownerID models.UserID,
-		secretKey string,
+		passphrase string,
 		name string,
 		data ISecretData,
 	) (models.SecretID, error)
 
 	// Update update a secret.
 	//
-	// Its validate secretKey and encrypt data.
+	// Its validate passphrase and encrypt data.
 	// Domain errors:
 	// - ErrSecretNotFound
 	// - ErrAnotherOwner
-	// - ErrInvalidSecretKey
+	// - ErrInvalidPassphrase
 	// - ErrInvalidSecretType
 	Update(
 		ctx context.Context,
 		id models.SecretID,
 		ownerID models.UserID,
-		secretKey string,
+		passphrase string,
 		name string,
 		data ISecretData,
 	) error
@@ -84,7 +84,7 @@ type Encryptor interface {
 }
 
 type EncryptorFactory interface {
-	Create(secretKey string) Encryptor
+	Create(passphrase string) Encryptor
 }
 
 type service struct {
@@ -114,14 +114,14 @@ func (s *service) GetPage(ctx context.Context,
 }
 
 func (s *service) Create(
-	ctx context.Context, ownerID models.UserID, secretKey string, name string, data ISecretData,
+	ctx context.Context, ownerID models.UserID, passphrase string, name string, data ISecretData,
 ) (models.SecretID, error) {
-	owner, err := s.loadAndCheckOwner(ctx, ownerID, secretKey)
+	owner, err := s.loadAndCheckOwner(ctx, ownerID, passphrase)
 	if err != nil {
 		return "", err
 	}
 
-	encryptedData, err := s.encryptorFactory.Create(secretKey).Encrypt(data.ToString())
+	encryptedData, err := s.encryptorFactory.Create(passphrase).Encrypt(data.ToString())
 	if err != nil {
 		return "", err
 	}
@@ -132,7 +132,7 @@ func (s *service) Create(
 func (s *service) Update(
 	ctx context.Context,
 	id models.SecretID, ownerID models.UserID,
-	secretKey string,
+	passphrase string,
 	name string, data ISecretData,
 ) error {
 	secret, err := s.getMySecret(ctx, id, ownerID)
@@ -144,11 +144,11 @@ func (s *service) Update(
 		return ErrInvalidSecretType
 	}
 
-	if err := s.checkSecretKey(secret.Owner, secretKey); err != nil {
+	if err := s.checkPassphrase(secret.Owner, passphrase); err != nil {
 		return err
 	}
 
-	encData, err := s.encryptorFactory.Create(secretKey).Encrypt(data.ToString())
+	encData, err := s.encryptorFactory.Create(passphrase).Encrypt(data.ToString())
 	if err != nil {
 		return err
 	}
@@ -185,14 +185,14 @@ func (s *service) getMySecret(
 	return secret, nil
 }
 
-func (s *service) checkSecretKey(owner *models.User, secretKey string) error {
-	ok, err := s.hasher.Compare(owner.SecretKeyHash, secretKey)
+func (s *service) checkPassphrase(owner *models.User, passphrase string) error {
+	ok, err := s.hasher.Compare(owner.PassphraseHash, passphrase)
 	if err != nil {
 		return err
 	}
 
 	if !ok {
-		return ErrInvalidSecretKey
+		return ErrInvalidPassphrase
 	}
 
 	return nil
@@ -201,14 +201,14 @@ func (s *service) checkSecretKey(owner *models.User, secretKey string) error {
 func (s *service) loadAndCheckOwner(
 	ctx context.Context,
 	ownerID models.UserID,
-	secretKey string,
+	passphrase string,
 ) (*models.User, error) {
 	owner, err := s.repo.GetOwner(ctx, ownerID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := s.checkSecretKey(owner, secretKey); err != nil {
+	if err := s.checkPassphrase(owner, passphrase); err != nil {
 		return nil, err
 	}
 

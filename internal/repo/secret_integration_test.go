@@ -36,10 +36,10 @@ func TestSecretRepository_GetOwner(t *testing.T) {
 		user, err := repo.GetOwner(ctx, models.UserID(accountUUID))
 		require.NoError(t, err)
 		assert.Equal(t, &models.User{
-			ID:            models.UserID(accountUUID),
-			Login:         "test@example.com",
-			PasswordHash:  "1234",
-			SecretKeyHash: "4567",
+			ID:             models.UserID(accountUUID),
+			Login:          "test@example.com",
+			PasswordHash:   "1234",
+			PassphraseHash: "4567",
 		}, user)
 	})
 
@@ -79,8 +79,8 @@ func TestSecretRepository_Get(t *testing.T) {
 			Type: models.SecretType(2),
 			Data: []byte{0xde, 0xff, 0x12, 0x34},
 			Owner: &models.User{
-				ID:            models.UserID(accountUUID),
-				SecretKeyHash: "4567",
+				ID:             models.UserID(accountUUID),
+				PassphraseHash: "4567",
 			},
 		}, secret)
 	})

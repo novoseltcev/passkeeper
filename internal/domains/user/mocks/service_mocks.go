@@ -81,18 +81,18 @@ func (c *MockServiceLoginCall) DoAndReturn(f func(context.Context, string, strin
 }
 
 // Register mocks base method.
-func (m *MockService) Register(ctx context.Context, login, password, secretKey string) (models.UserID, error) {
+func (m *MockService) Register(ctx context.Context, login, password, passphrase string) (models.UserID, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Register", ctx, login, password, secretKey)
+	ret := m.ctrl.Call(m, "Register", ctx, login, password, passphrase)
 	ret0, _ := ret[0].(models.UserID)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Register indicates an expected call of Register.
-func (mr *MockServiceMockRecorder) Register(ctx, login, password, secretKey any) *MockServiceRegisterCall {
+func (mr *MockServiceMockRecorder) Register(ctx, login, password, passphrase any) *MockServiceRegisterCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Register", reflect.TypeOf((*MockService)(nil).Register), ctx, login, password, secretKey)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Register", reflect.TypeOf((*MockService)(nil).Register), ctx, login, password, passphrase)
 	return &MockServiceRegisterCall{Call: call}
 }
 
@@ -119,40 +119,40 @@ func (c *MockServiceRegisterCall) DoAndReturn(f func(context.Context, string, st
 	return c
 }
 
-// VerifySecret mocks base method.
-func (m *MockService) VerifySecret(ctx context.Context, ownerID models.UserID, secretKey string) error {
+// VerifyPassphrase mocks base method.
+func (m *MockService) VerifyPassphrase(ctx context.Context, ownerID models.UserID, passphrase string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VerifySecret", ctx, ownerID, secretKey)
+	ret := m.ctrl.Call(m, "VerifyPassphrase", ctx, ownerID, passphrase)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// VerifySecret indicates an expected call of VerifySecret.
-func (mr *MockServiceMockRecorder) VerifySecret(ctx, ownerID, secretKey any) *MockServiceVerifySecretCall {
+// VerifyPassphrase indicates an expected call of VerifyPassphrase.
+func (mr *MockServiceMockRecorder) VerifyPassphrase(ctx, ownerID, passphrase any) *MockServiceVerifyPassphraseCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifySecret", reflect.TypeOf((*MockService)(nil).VerifySecret), ctx, ownerID, secretKey)
-	return &MockServiceVerifySecretCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyPassphrase", reflect.TypeOf((*MockService)(nil).VerifyPassphrase), ctx, ownerID, passphrase)
+	return &MockServiceVerifyPassphraseCall{Call: call}
 }
 
-// MockServiceVerifySecretCall wrap *gomock.Call
-type MockServiceVerifySecretCall struct {
+// MockServiceVerifyPassphraseCall wrap *gomock.Call
+type MockServiceVerifyPassphraseCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceVerifySecretCall) Return(arg0 error) *MockServiceVerifySecretCall {
+func (c *MockServiceVerifyPassphraseCall) Return(arg0 error) *MockServiceVerifyPassphraseCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceVerifySecretCall) Do(f func(context.Context, models.UserID, string) error) *MockServiceVerifySecretCall {
+func (c *MockServiceVerifyPassphraseCall) Do(f func(context.Context, models.UserID, string) error) *MockServiceVerifyPassphraseCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceVerifySecretCall) DoAndReturn(f func(context.Context, models.UserID, string) error) *MockServiceVerifySecretCall {
+func (c *MockServiceVerifyPassphraseCall) DoAndReturn(f func(context.Context, models.UserID, string) error) *MockServiceVerifyPassphraseCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

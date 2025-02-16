@@ -39,10 +39,10 @@ func TestUserRepository_GetByID(t *testing.T) {
 		user, err := repo.GetByID(ctx, models.UserID(accountUUID))
 		require.NoError(t, err)
 		assert.Equal(t, &models.User{
-			ID:            models.UserID(accountUUID),
-			Login:         "test@example.com",
-			PasswordHash:  "1234",
-			SecretKeyHash: "4567",
+			ID:             models.UserID(accountUUID),
+			Login:          "test@example.com",
+			PasswordHash:   "1234",
+			PassphraseHash: "4567",
 		}, user)
 	})
 
@@ -76,10 +76,10 @@ func TestUserRepository_GetByLogin(t *testing.T) {
 		user, err := repo.GetByLogin(ctx, "test@example.com")
 		require.NoError(t, err)
 		assert.Equal(t, &models.User{
-			ID:            models.UserID(accountUUID),
-			Login:         "test@example.com",
-			PasswordHash:  "1234",
-			SecretKeyHash: "4567",
+			ID:             models.UserID(accountUUID),
+			Login:          "test@example.com",
+			PasswordHash:   "1234",
+			PassphraseHash: "4567",
 		}, user)
 	})
 
@@ -101,9 +101,9 @@ func TestUserRepository_CreateAccount(t *testing.T) {
 		t.Parallel()
 
 		userID, err := repo.CreateAccount(ctx, &models.User{
-			Login:         "new@example.com",
-			PasswordHash:  "some-password",
-			SecretKeyHash: "some-secret-key",
+			Login:          "new@example.com",
+			PasswordHash:   "some-password",
+			PassphraseHash: "some-secret-key",
 		})
 		require.NoError(t, err)
 		assert.NoError(t, uuid.Validate(string(userID)))
@@ -113,9 +113,9 @@ func TestUserRepository_CreateAccount(t *testing.T) {
 		t.Parallel()
 
 		_, err := repo.CreateAccount(ctx, &models.User{
-			Login:         "test@example.com",
-			PasswordHash:  "some-password",
-			SecretKeyHash: "some-secret-key",
+			Login:          "test@example.com",
+			PasswordHash:   "some-password",
+			PassphraseHash: "some-secret-key",
 		})
 
 		var pgErr *pgconn.PgError

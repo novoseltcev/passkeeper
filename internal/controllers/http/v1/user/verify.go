@@ -7,14 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 
+	"github.com/novoseltcev/passkeeper/internal/app/auth"
 	"github.com/novoseltcev/passkeeper/internal/controllers/http/common/response"
 	domain "github.com/novoseltcev/passkeeper/internal/domains/user"
-	"github.com/novoseltcev/passkeeper/internal/server/auth"
 )
 
 func Verify(service domain.Service) gin.HandlerFunc {
 	type reqBody struct {
-		SecretKey string `binding:"required"`
+		Passphrase string `binding:"required"`
 	}
 
 	return func(c *gin.Context) {
@@ -32,9 +32,9 @@ func Verify(service domain.Service) gin.HandlerFunc {
 			return
 		}
 
-		err := service.VerifySecret(c, ownerID, body.SecretKey)
+		err := service.VerifyPassphrase(c, ownerID, body.Passphrase)
 		if err != nil {
-			if errors.Is(err, domain.ErrInvalidSecretKey) {
+			if errors.Is(err, domain.ErrInvalidPassphrase) {
 				c.AbortWithStatus(http.StatusConflict)
 			} else {
 				c.AbortWithStatus(http.StatusInternalServerError)

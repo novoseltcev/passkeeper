@@ -22,13 +22,13 @@ type Service interface {
 	//
 	// Errors:
 	// - ErrLoginIsBusy if the login is busy.
-	Register(ctx context.Context, login, password, secretKey string) (models.UserID, error)
+	Register(ctx context.Context, login, password, passphrase string) (models.UserID, error)
 
-	// VerifySecret verifies a owner's secret key.
+	// VerifyPassphrase verifies a owner's passphrase.
 	//
 	// Errors:
 	// - ErrInvalidSecretType
-	VerifySecret(ctx context.Context, ownerID models.UserID, secretKey string) error
+	VerifyPassphrase(ctx context.Context, ownerID models.UserID, passphrase string) error
 }
 
 type Hasher interface {
@@ -69,7 +69,7 @@ func (s *service) Login(ctx context.Context, login, password string) (models.Use
 	return user.ID, nil
 }
 
-func (s *service) Register(ctx context.Context, login, password, secretKey string) (models.UserID, error) {
+func (s *service) Register(ctx context.Context, login, password, passphrase string) (models.UserID, error) {
 	user, err := s.repo.GetByLogin(ctx, login)
 	if err != nil && !errors.Is(err, ErrUserNotFound) {
 		return "", err
@@ -84,27 +84,27 @@ func (s *service) Register(ctx context.Context, login, password, secretKey strin
 		return "", err
 	}
 
-	hashedSecretKey, err := s.hasher.Generate(secretKey)
+	hashedPassphrase, err := s.hasher.Generate(passphrase)
 	if err != nil {
 		return "", err
 	}
 
-	return s.repo.CreateAccount(ctx, models.NewUser(login, hashedPwd, hashedSecretKey))
+	return s.repo.CreateAccount(ctx, models.NewUser(login, hashedPwd, hashedPassphrase))
 }
 
-func (s *service) VerifySecret(ctx context.Context, ownerID models.UserID, secretKey string) error {
+func (s *service) VerifyPassphrase(ctx context.Context, ownerID models.UserID, passphrase string) error {
 	owner, err := s.repo.GetByID(ctx, ownerID)
 	if err != nil {
 		return err
 	}
 
-	ok, err := s.hasher.Compare(owner.SecretKeyHash, secretKey)
+	ok, err := s.hasher.Compare(owner.PassphraseHash, passphrase)
 	if err != nil {
 		return err
 	}
 
 	if !ok {
-		return ErrInvalidSecretKey
+		return ErrInvalidPassphrase
 	}
 
 	return nil

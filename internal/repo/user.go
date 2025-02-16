@@ -16,10 +16,10 @@ type userRepository struct {
 }
 
 type userInDB struct {
-	ID            string `db:"uuid"`
-	Login         string `db:"login"`
-	PasswordHash  string `db:"password_hash"`
-	SecretKeyHash string `db:"secret_key_hash"`
+	ID             string `db:"uuid"`
+	Login          string `db:"login"`
+	PasswordHash   string `db:"password_hash"`
+	PassphraseHash string `db:"passphrase_hash"`
 }
 
 var _ domain.Repository = (*userRepository)(nil)
@@ -32,7 +32,7 @@ func (r *userRepository) GetByID(ctx context.Context, id models.UserID) (*models
 	var user userInDB
 
 	err := r.db.GetContext(ctx, &user, `
-		SELECT uuid, login, password_hash, secret_key_hash
+		SELECT uuid, login, password_hash, passphrase_hash
 		FROM accounts
 			WHERE uuid = $1
 	`, id)
@@ -45,10 +45,10 @@ func (r *userRepository) GetByID(ctx context.Context, id models.UserID) (*models
 	}
 
 	return &models.User{
-		ID:            models.UserID(user.ID),
-		Login:         user.Login,
-		PasswordHash:  user.PasswordHash,
-		SecretKeyHash: user.SecretKeyHash,
+		ID:             models.UserID(user.ID),
+		Login:          user.Login,
+		PasswordHash:   user.PasswordHash,
+		PassphraseHash: user.PassphraseHash,
 	}, nil
 }
 
@@ -56,7 +56,7 @@ func (r *userRepository) GetByLogin(ctx context.Context, login string) (*models.
 	var user userInDB
 
 	err := r.db.GetContext(ctx, &user, `
-		SELECT uuid, login, password_hash, secret_key_hash
+		SELECT uuid, login, password_hash, passphrase_hash
 		FROM accounts
 			WHERE login = $1
 	`, login)
@@ -69,10 +69,10 @@ func (r *userRepository) GetByLogin(ctx context.Context, login string) (*models.
 	}
 
 	return &models.User{
-		ID:            models.UserID(user.ID),
-		Login:         user.Login,
-		PasswordHash:  user.PasswordHash,
-		SecretKeyHash: user.SecretKeyHash,
+		ID:             models.UserID(user.ID),
+		Login:          user.Login,
+		PasswordHash:   user.PasswordHash,
+		PassphraseHash: user.PassphraseHash,
 	}, nil
 }
 
@@ -80,10 +80,10 @@ func (r *userRepository) CreateAccount(ctx context.Context, data *models.User) (
 	var id string
 
 	err := r.db.GetContext(ctx, &id, `
-		INSERT INTO accounts (login, password_hash, secret_key_hash, created_at)
+		INSERT INTO accounts (login, password_hash, passphrase_hash, created_at)
 		VALUES ($1, $2, $3, NOW())
 		RETURNING uuid
-	`, data.Login, data.PasswordHash, data.SecretKeyHash)
+	`, data.Login, data.PasswordHash, data.PassphraseHash)
 	if err != nil {
 		return "", err
 	}

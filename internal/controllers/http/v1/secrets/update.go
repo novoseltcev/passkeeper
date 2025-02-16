@@ -7,10 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 
+	"github.com/novoseltcev/passkeeper/internal/app/auth"
 	"github.com/novoseltcev/passkeeper/internal/controllers/http/common/response"
 	domain "github.com/novoseltcev/passkeeper/internal/domains/secrets"
 	"github.com/novoseltcev/passkeeper/internal/models"
-	"github.com/novoseltcev/passkeeper/internal/server/auth"
 )
 
 func updateSecret[T any](
@@ -54,7 +54,7 @@ func updateSecret[T any](
 func UpdatePassword(service domain.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		updateSecret(c, func(c *gin.Context, id models.SecretID, ownerID models.UserID, body *PasswordSecretData) error {
-			return service.Update(c, id, ownerID, body.SecretKey, body.Name, &domain.PasswordData{
+			return service.Update(c, id, ownerID, body.Passphrase, body.Name, &domain.PasswordData{
 				Login:    body.Login,
 				Password: body.Password,
 				Meta:     body.Meta,
@@ -66,7 +66,7 @@ func UpdatePassword(service domain.Service) func(c *gin.Context) {
 func UpdateCard(service domain.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		updateSecret(c, func(c *gin.Context, id models.SecretID, ownerID models.UserID, body *CardSecretData) error {
-			return service.Update(c, id, ownerID, body.SecretKey, body.Name, &domain.CardData{
+			return service.Update(c, id, ownerID, body.Passphrase, body.Name, &domain.CardData{
 				Number: body.Number,
 				Holder: body.Holder,
 				Exp:    body.Exp,
@@ -80,7 +80,7 @@ func UpdateCard(service domain.Service) func(c *gin.Context) {
 func UpdateText(service domain.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		updateSecret(c, func(c *gin.Context, id models.SecretID, ownerID models.UserID, body *TextSecretData) error {
-			return service.Update(c, id, ownerID, body.SecretKey, body.Name, &domain.TextData{
+			return service.Update(c, id, ownerID, body.Passphrase, body.Name, &domain.TextData{
 				Content: body.Content,
 				Meta:    body.Meta,
 			})
@@ -91,7 +91,7 @@ func UpdateText(service domain.Service) func(c *gin.Context) {
 func UpdateFile(service domain.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		updateSecret(c, func(c *gin.Context, id models.SecretID, ownerID models.UserID, body *FileSecretData) error {
-			return service.Update(c, id, ownerID, body.SecretKey, body.Name, &domain.FileData{
+			return service.Update(c, id, ownerID, body.Passphrase, body.Name, &domain.FileData{
 				Filename: body.Filename,
 				Content:  body.Content,
 				Meta:     body.Meta,

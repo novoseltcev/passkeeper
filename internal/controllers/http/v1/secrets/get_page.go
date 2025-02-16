@@ -7,9 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 
+	"github.com/novoseltcev/passkeeper/internal/app/auth"
 	"github.com/novoseltcev/passkeeper/internal/controllers/http/common/response"
 	domain "github.com/novoseltcev/passkeeper/internal/domains/secrets"
-	"github.com/novoseltcev/passkeeper/internal/server/auth"
 )
 
 func GetPage(service domain.Service) func(c *gin.Context) {

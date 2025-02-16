@@ -49,12 +49,12 @@ github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:116:			Cre
 github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:132:			Update			100.0%
 github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:162:			Delete			100.0%
 github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:171:			getMySecret		100.0%
-github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:188:			checkSecretKey		100.0%
+github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:188:			checkPassphrase		100.0%
 github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:201:			loadAndCheckOwner	100.0%
 github.com/novoseltcev/passkeeper/internal/domains/user/service.go:46:				NewService		100.0%
 github.com/novoseltcev/passkeeper/internal/domains/user/service.go:50:				Login			100.0%
 github.com/novoseltcev/passkeeper/internal/domains/user/service.go:72:				Register		100.0%
-github.com/novoseltcev/passkeeper/internal/domains/user/service.go:95:				VerifySecret		100.0%
+github.com/novoseltcev/passkeeper/internal/domains/user/service.go:95:				VerifyPassphrase	100.0%
 github.com/novoseltcev/passkeeper/internal/middleware/jwt.go:18:				JWT			100.0%
 github.com/novoseltcev/passkeeper/internal/middleware/jwt.go:45:				lookupToken		100.0%
 github.com/novoseltcev/passkeeper/internal/models/secret.go:15:					String			83.3%

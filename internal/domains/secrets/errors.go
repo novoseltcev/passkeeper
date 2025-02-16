@@ -5,6 +5,6 @@ import "errors"
 var (
 	ErrSecretNotFound    = errors.New("secret not found")
 	ErrAnotherOwner      = errors.New("another owner")
-	ErrInvalidSecretKey  = errors.New("invalid secret key")
+	ErrInvalidPassphrase = errors.New("invalid passphrase")
 	ErrInvalidSecretType = errors.New("invalid secret type")
 )

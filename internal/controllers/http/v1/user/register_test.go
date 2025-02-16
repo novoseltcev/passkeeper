@@ -18,7 +18,7 @@ import (
 	"github.com/novoseltcev/passkeeper/pkg/testutils"
 )
 
-const testSecretKey = "secret-key"
+const testPassphrase = "passphrase"
 
 func TestRegister_Success(t *testing.T) {
 	t.Parallel()
@@ -31,7 +31,7 @@ func TestRegister_Success(t *testing.T) {
 	user.AddRoutes(&root.RouterGroup, service, jwt, nil)
 
 	service.EXPECT().
-		Register(gomock.Any(), testLogin, testPassword, testSecretKey).
+		Register(gomock.Any(), testLogin, testPassword, testPassphrase).
 		Return(testID, nil)
 
 	jwt.EXPECT().
@@ -45,8 +45,8 @@ func TestRegister_Success(t *testing.T) {
 		{
 			"login":"%s",
 			"password":"%s",
-			"secretKey":"%s"
-		}`, testLogin, testPassword, testSecretKey).
+			"passphrase":"%s"
+		}`, testLogin, testPassword, testPassphrase).
 		Expect(t).
 		Status(http.StatusCreated).
 		Bodyf(`
@@ -80,7 +80,7 @@ func TestRegister_Fails_Validate(t *testing.T) {
 			errs: []string{
 				"Field validation for 'Login' failed on the 'required' tag",
 				"Field validation for 'Password' failed on the 'required' tag",
-				"Field validation for 'SecretKey' failed on the 'required' tag",
+				"Field validation for 'Passphrase' failed on the 'required' tag",
 			},
 		},
 		{
@@ -89,28 +89,28 @@ func TestRegister_Fails_Validate(t *testing.T) {
 			{
 				"login":"",
 				"password":"",
-				"secretKey":""
+				"passphrase":""
 			}`,
 			status: http.StatusUnprocessableEntity,
 			errs: []string{
 				"Field validation for 'Login' failed on the 'required' tag",
 				"Field validation for 'Password' failed on the 'required' tag",
-				"Field validation for 'SecretKey' failed on the 'required' tag",
+				"Field validation for 'Passphrase' failed on the 'required' tag",
 			},
 		},
 		{
-			name: "login is not email, len(password) < 8, len(secretKey) < 8",
+			name: "login is not email, len(password) < 8, len(passphrase) < 8",
 			body: `
 			{
 				"login":" ",
 				"password":"1234567",
-				"secretKey":"1234567"
+				"passphrase":"1234567"
 			}`,
 			status: http.StatusUnprocessableEntity,
 			errs: []string{
 				"Field validation for 'Login' failed on the 'email' tag",
 				"Field validation for 'Password' failed on the 'min' tag",
-				"Field validation for 'SecretKey' failed on the 'min' tag",
+				"Field validation for 'Passphrase' failed on the 'min' tag",
 			},
 		},
 	}
@@ -145,7 +145,7 @@ var defaultRegisterBody = `
 {
 	"login": "test@test.com",
 	"password": "testPassword",
-	"secretKey": "testSecretKey"
+	"passphrase": "testPassphrase"
 }`
 
 func TestRegister_Fails_Register(t *testing.T) {

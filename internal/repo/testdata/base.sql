@@ -1,4 +1,4 @@
-INSERT INTO accounts (uuid, login, password_hash, secret_key_hash) VALUES
+INSERT INTO accounts (uuid, login, password_hash, passphrase_hash) VALUES
     ('62822284-5a2a-4a5d-b66e-12d09e0fe79c', 'test@example.com', '1234', '4567'),
     ('08108e22-a2d8-4ce7-abbb-13d91dacc758', 'test@test.com', '4321', '7654');
 

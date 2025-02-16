@@ -14,9 +14,9 @@ import (
 
 func Register(service domain.Service, jwt jwtmanager.Manager) gin.HandlerFunc {
 	type reqBody struct {
-		Login     string `binding:"required,email"`
-		Password  string `binding:"required,min=8"`
-		SecretKey string `binding:"required,min=8"`
+		Login      string `binding:"required,email"`
+		Password   string `binding:"required,min=8"`
+		Passphrase string `binding:"required,min=8"`
 	}
 
 	return func(c *gin.Context) {
@@ -32,7 +32,7 @@ func Register(service domain.Service, jwt jwtmanager.Manager) gin.HandlerFunc {
 			return
 		}
 
-		id, err := service.Register(c, body.Login, body.Password, body.SecretKey)
+		id, err := service.Register(c, body.Login, body.Password, body.Passphrase)
 		if err != nil {
 			if errors.Is(err, domain.ErrLoginIsBusy) {
 				c.AbortWithStatus(http.StatusConflict)

@@ -3,17 +3,17 @@ package models
 type (
 	UserID string
 	User   struct {
-		ID            UserID
-		Login         string
-		PasswordHash  string
-		SecretKeyHash string
+		ID             UserID
+		Login          string
+		PasswordHash   string
+		PassphraseHash string
 	}
 )
 
-func NewUser(login, pwdHash, secretKeyHash string) *User {
+func NewUser(login, pwdHash, passphraseHash string) *User {
 	return &User{
-		Login:         login,
-		PasswordHash:  pwdHash,
-		SecretKeyHash: secretKeyHash,
+		Login:          login,
+		PasswordHash:   pwdHash,
+		PassphraseHash: passphraseHash,
 	}
 }

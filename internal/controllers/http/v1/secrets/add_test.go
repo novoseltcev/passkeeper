@@ -20,14 +20,14 @@ import (
 )
 
 var (
-	testSecretKey = "secret-key"
-	testLogin     = "login"
-	testPassword  = "p@ssw0rd"
-	testMeta      = `{"key":"value"}`
-	testCard      = "4111111111111111"
-	testHolder    = "John Doe"
-	testExp       = "08/12/2025"
-	testCVV       = "123"
+	testPassphrase = "passphrase"
+	testLogin      = "login"
+	testPassword   = "p@ssw0rd"
+	testMeta       = `{"key":"value"}`
+	testCard       = "4111111111111111"
+	testHolder     = "John Doe"
+	testExp        = "08/12/2025"
+	testCVV        = "123"
 )
 
 var testMetaMap = map[string]any{"key": "value"}
@@ -54,7 +54,7 @@ func TestAdd(t *testing.T) {
 		secrets.AddRoutes(&root.RouterGroup, service, guardMock)
 
 		service.EXPECT().
-			Create(gomock.Any(), testOwnerID, testSecretKey, testName, &domain.PasswordData{
+			Create(gomock.Any(), testOwnerID, testPassphrase, testName, &domain.PasswordData{
 				Login:    testLogin,
 				Password: testPassword,
 				Meta:     testMetaMap,
@@ -66,12 +66,12 @@ func TestAdd(t *testing.T) {
 			Post("/secrets/password").
 			Bodyf(`
 			{
-				"secretKey":"%s",
+				"passphrase":"%s",
 				"name":"%s",
 				"login":"%s",
 				"password":"%s",
 				"meta":%s
-			}`, testSecretKey, testName, testLogin, testPassword, testMeta).
+			}`, testPassphrase, testName, testLogin, testPassword, testMeta).
 			Expect(t).
 			Status(http.StatusCreated).
 			Bodyf(`{"success":true, "result": {"id":"%s"}}`, testID).
@@ -85,7 +85,7 @@ func TestAdd(t *testing.T) {
 		secrets.AddRoutes(&root.RouterGroup, service, guardMock)
 
 		service.EXPECT().
-			Create(gomock.Any(), testOwnerID, testSecretKey, testName, &domain.CardData{
+			Create(gomock.Any(), testOwnerID, testPassphrase, testName, &domain.CardData{
 				Number: testCard,
 				Holder: testHolder,
 				Exp:    testExp,
@@ -99,14 +99,14 @@ func TestAdd(t *testing.T) {
 			Post("/secrets/card").
 			Bodyf(`
 			{
-				"secretKey":"%s",
+				"passphrase":"%s",
 				"name":"%s",
 				"number":"%s",
 				"holder":"%s",
 				"exp":"%s",
 				"cvv":"%s",
 				"meta":%s
-			}`, testSecretKey, testName, testCard, testHolder, testExp, testCVV, testMeta).
+			}`, testPassphrase, testName, testCard, testHolder, testExp, testCVV, testMeta).
 			Expect(t).
 			Status(http.StatusCreated).
 			Bodyf(`{"success":true, "result": {"id":"%s"}}`, testID).
@@ -120,7 +120,7 @@ func TestAdd(t *testing.T) {
 		secrets.AddRoutes(&root.RouterGroup, service, guardMock)
 
 		service.EXPECT().
-			Create(gomock.Any(), testOwnerID, testSecretKey, testName, &domain.TextData{
+			Create(gomock.Any(), testOwnerID, testPassphrase, testName, &domain.TextData{
 				Content: testutils.STRING,
 				Meta:    testMetaMap,
 			}).
@@ -131,11 +131,11 @@ func TestAdd(t *testing.T) {
 			Post("/secrets/text").
 			Bodyf(`
 			{
-				"secretKey":"%s",
+				"passphrase":"%s",
 				"name":"%s",
 				"content":"%s",
 				"meta":%s
-			}`, testSecretKey, testName, testutils.STRING, testMeta).
+			}`, testPassphrase, testName, testutils.STRING, testMeta).
 			Expect(t).
 			Status(http.StatusCreated).
 			Bodyf(`{"success":true, "result": {"id":"%s"}}`, testID).
@@ -149,7 +149,7 @@ func TestAdd(t *testing.T) {
 		secrets.AddRoutes(&root.RouterGroup, service, guardMock)
 
 		service.EXPECT().
-			Create(gomock.Any(), testOwnerID, testSecretKey, testName, &domain.FileData{
+			Create(gomock.Any(), testOwnerID, testPassphrase, testName, &domain.FileData{
 				Filename: testutils.STRING,
 				Content:  testHex,
 				Meta:     testMetaMap,
@@ -161,12 +161,12 @@ func TestAdd(t *testing.T) {
 			Post("/secrets/file").
 			Bodyf(`
 			{
-				"secretKey":"%s",
+				"passphrase":"%s",
 				"name":"%s",
 				"filename":"%s",
 				"content":"%s",
 				"meta":%s
-			}`, testSecretKey, testName, testutils.STRING, testHex, testMeta).
+			}`, testPassphrase, testName, testutils.STRING, testHex, testMeta).
 			Expect(t).
 			Status(http.StatusCreated).
 			Bodyf(`{"success":true, "result": {"id":"%s"}}`, testID).
@@ -177,7 +177,7 @@ func TestAdd(t *testing.T) {
 var defaultAddData = map[models.SecretType]string{
 	models.SecretTypePwd: `
 	{
-		"secretKey":"secret-key",
+		"passphrase":"passphrase",
 		"name":"test",
 		"login":"login",
 		"password":"p@ssw0rd",
@@ -185,7 +185,7 @@ var defaultAddData = map[models.SecretType]string{
 	}`,
 	models.SecretTypeCard: `
 	{
-		"secretKey":"secret-key",
+		"passphrase":"passphrase",
 		"name":"test",
 		"number":"4111111111111111",
 		"holder":"John Doe",
@@ -195,14 +195,14 @@ var defaultAddData = map[models.SecretType]string{
 	}`,
 	models.SecretTypeTxt: `
 	{
-		"secretKey":"secret-key",
+		"passphrase":"passphrase",
 		"name":"test",
 		"content":"string",
 		"meta":{}
 	}`,
 	models.SecretTypeFile: `
 	{
-		"secretKey":"secret-key",
+		"passphrase":"passphrase",
 		"name":"test",
 		"filename":"string",
 		"content":"74657374",
@@ -221,8 +221,8 @@ func TestAdd_Fails_Create(t *testing.T) {
 		status int
 	}{
 		{
-			name:   "invalid secret key",
-			err:    domain.ErrInvalidSecretKey,
+			name:   "invalid passphrase",
+			err:    domain.ErrInvalidPassphrase,
 			status: http.StatusConflict,
 		},
 		{
@@ -277,7 +277,7 @@ func TestAddPassword_Fails_Validate(t *testing.T) {
 			body:   `{}`,
 			status: http.StatusUnprocessableEntity,
 			errs: []string{
-				"Field validation for 'SecretKey' failed on the 'required' tag",
+				"Field validation for 'Passphrase' failed on the 'required' tag",
 				"Field validation for 'Name' failed on the 'required' tag",
 				"Field validation for 'Login' failed on the 'required' tag",
 				"Field validation for 'Password' failed on the 'required' tag",
@@ -332,7 +332,7 @@ func TestAddCard_Fails_Validate(t *testing.T) {
 			body:   `{}`,
 			status: http.StatusUnprocessableEntity,
 			errs: []string{
-				"Field validation for 'SecretKey' failed on the 'required' tag",
+				"Field validation for 'Passphrase' failed on the 'required' tag",
 				"Field validation for 'Name' failed on the 'required' tag",
 				"Field validation for 'Number' failed on the 'required' tag",
 				"Field validation for 'Exp' failed on the 'required' tag",
@@ -388,7 +388,7 @@ func TestAddText_Fails_Validate(t *testing.T) {
 			body:   `{}`,
 			status: http.StatusUnprocessableEntity,
 			errs: []string{
-				"Field validation for 'SecretKey' failed on the 'required' tag",
+				"Field validation for 'Passphrase' failed on the 'required' tag",
 				"Field validation for 'Name' failed on the 'required' tag",
 				"Field validation for 'Content' failed on the 'required' tag",
 				"Field validation for 'Meta' failed on the 'required' tag",
@@ -442,7 +442,7 @@ func TestAddFile_Fails_Validate(t *testing.T) {
 			body:   `{}`,
 			status: http.StatusUnprocessableEntity,
 			errs: []string{
-				"Field validation for 'SecretKey' failed on the 'required' tag",
+				"Field validation for 'Passphrase' failed on the 'required' tag",
 				"Field validation for 'Name' failed on the 'required' tag",
 				"Field validation for 'Filename' failed on the 'required' tag",
 				"Field validation for 'Content' failed on the 'required' tag",

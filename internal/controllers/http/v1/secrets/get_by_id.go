@@ -7,10 +7,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/novoseltcev/passkeeper/internal/app/auth"
 	"github.com/novoseltcev/passkeeper/internal/controllers/http/common/response"
 	domain "github.com/novoseltcev/passkeeper/internal/domains/secrets"
 	"github.com/novoseltcev/passkeeper/internal/models"
-	"github.com/novoseltcev/passkeeper/internal/server/auth"
 )
 
 func GetByID(service domain.Service) func(c *gin.Context) {

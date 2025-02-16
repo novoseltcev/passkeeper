@@ -16,12 +16,12 @@ type secretRepository struct {
 }
 
 type secretInDB struct {
-	UUID          string `db:"uuid"`
-	Name          string `db:"name"`
-	Type          int    `db:"type"`
-	EncryptedData []byte `db:"encrypted_data"`
-	Owner         string `db:"owner_uuid"`
-	SecretKeyHash string `db:"secret_key_hash"`
+	UUID           string `db:"uuid"`
+	Name           string `db:"name"`
+	Type           int    `db:"type"`
+	EncryptedData  []byte `db:"encrypted_data"`
+	Owner          string `db:"owner_uuid"`
+	PassphraseHash string `db:"passphrase_hash"`
 }
 
 func (s secretInDB) ToDomain() *models.Secret {
@@ -30,7 +30,7 @@ func (s secretInDB) ToDomain() *models.Secret {
 		Name:  s.Name,
 		Type:  models.SecretType(s.Type),
 		Data:  s.EncryptedData,
-		Owner: &models.User{ID: models.UserID(s.Owner), SecretKeyHash: s.SecretKeyHash},
+		Owner: &models.User{ID: models.UserID(s.Owner), PassphraseHash: s.PassphraseHash},
 	}
 }
 
@@ -44,7 +44,7 @@ func (r *secretRepository) GetOwner(ctx context.Context, ownerID models.UserID) 
 	var owner userInDB
 
 	err := r.db.GetContext(ctx, &owner, `
-		SELECT uuid, login, password_hash, secret_key_hash
+		SELECT uuid, login, password_hash, passphrase_hash
 		FROM accounts
 			WHERE uuid = $1
 	`, ownerID)
@@ -53,10 +53,10 @@ func (r *secretRepository) GetOwner(ctx context.Context, ownerID models.UserID) 
 	}
 
 	return &models.User{
-		ID:            models.UserID(owner.ID),
-		Login:         owner.Login,
-		PasswordHash:  owner.PasswordHash,
-		SecretKeyHash: owner.SecretKeyHash,
+		ID:             models.UserID(owner.ID),
+		Login:          owner.Login,
+		PasswordHash:   owner.PasswordHash,
+		PassphraseHash: owner.PassphraseHash,
 	}, nil
 }
 
@@ -64,7 +64,7 @@ func (r *secretRepository) Get(ctx context.Context, id models.SecretID) (*models
 	var secret secretInDB
 
 	err := r.db.GetContext(ctx, &secret, `
-		SELECT secrets.uuid, owner_uuid, name, type, encrypted_data, secret_key_hash
+		SELECT secrets.uuid, owner_uuid, name, type, encrypted_data, passphrase_hash
 		FROM secrets
 			JOIN accounts ON secrets.owner_uuid = accounts.uuid
 				WHERE secrets.uuid = $1
