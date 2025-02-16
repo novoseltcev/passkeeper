@@ -2,6 +2,11 @@ github.com/novoseltcev/passkeeper/cmd/server/cmd.go:21:						Cmd			0.0%
 github.com/novoseltcev/passkeeper/cmd/server/cmd.go:75:						initFlags		0.0%
 github.com/novoseltcev/passkeeper/cmd/server/main.go:16:					init			0.0%
 github.com/novoseltcev/passkeeper/cmd/server/main.go:30:					main			0.0%
+github.com/novoseltcev/passkeeper/internal/app/app.go:39:					New			0.0%
+github.com/novoseltcev/passkeeper/internal/app/app.go:57:					Run			0.0%
+github.com/novoseltcev/passkeeper/internal/app/app.go:103:					getRootHandler		0.0%
+github.com/novoseltcev/passkeeper/internal/app/auth/utils.go:13:				GetUserID		75.0%
+github.com/novoseltcev/passkeeper/internal/app/config.go:32:					LoadEnv			0.0%
 github.com/novoseltcev/passkeeper/internal/controllers/http/common/response/base.go:9:		NewSuccess		100.0%
 github.com/novoseltcev/passkeeper/internal/controllers/http/common/response/base.go:16:		NewError		100.0%
 github.com/novoseltcev/passkeeper/internal/controllers/http/common/response/created.go:7:	NewCreate		100.0%
@@ -70,11 +75,6 @@ github.com/novoseltcev/passkeeper/internal/repo/user.go:27:					NewUserRepositor
 github.com/novoseltcev/passkeeper/internal/repo/user.go:31:					GetByID			100.0%
 github.com/novoseltcev/passkeeper/internal/repo/user.go:55:					GetByLogin		85.7%
 github.com/novoseltcev/passkeeper/internal/repo/user.go:79:					CreateAccount		100.0%
-github.com/novoseltcev/passkeeper/internal/server/app.go:39:					NewApp			0.0%
-github.com/novoseltcev/passkeeper/internal/server/app.go:57:					Run			0.0%
-github.com/novoseltcev/passkeeper/internal/server/app.go:103:					getRootHandler		0.0%
-github.com/novoseltcev/passkeeper/internal/server/auth/utils.go:13:				GetUserID		75.0%
-github.com/novoseltcev/passkeeper/internal/server/config.go:32:					LoadEnv			0.0%
 github.com/novoseltcev/passkeeper/pkg/httpserver/options.go:11:					WithAddr		100.0%
 github.com/novoseltcev/passkeeper/pkg/httpserver/options.go:18:					WithReadTimeout		100.0%
 github.com/novoseltcev/passkeeper/pkg/httpserver/options.go:25:					WithTLS			0.0%

@@ -1,4 +1,4 @@
-package server
+package app
 
 import (
 	"context"
@@ -13,12 +13,12 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/novoseltcev/passkeeper/internal/app/auth"
 	"github.com/novoseltcev/passkeeper/internal/controllers/http/srv"
 	v1 "github.com/novoseltcev/passkeeper/internal/controllers/http/v1"
 	"github.com/novoseltcev/passkeeper/internal/domains/secrets"
 	"github.com/novoseltcev/passkeeper/internal/domains/user"
 	"github.com/novoseltcev/passkeeper/internal/middleware"
-	"github.com/novoseltcev/passkeeper/internal/server/auth"
 	"github.com/novoseltcev/passkeeper/pkg/httpserver"
 	"github.com/novoseltcev/passkeeper/pkg/jwtmanager"
 )
@@ -36,7 +36,7 @@ type App struct {
 	userService   user.Service
 }
 
-func NewApp(
+func New(
 	cfg *Config,
 	log *zap.Logger,
 	db *sqlx.DB,
@@ -119,7 +119,7 @@ func (a *App) getRootHandler() (http.Handler, error) {
 	)
 
 	srv.AddRoutes(root.Group("/srv"))
-	v1.AddRoutes(root.Group("/v1"), jwt, middleware.JWT(jwt, auth.IdentityKey), a.secretService, a.userService)
+	v1.AddRoutes(root.Group("/api/v1"), jwt, middleware.JWT(jwt, auth.IdentityKey), a.secretService, a.userService)
 
 	return root.Handler(), nil
 }
