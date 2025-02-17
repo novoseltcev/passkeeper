@@ -80,44 +80,6 @@ func (c *MockISecretDataSecretTypeCall) DoAndReturn(f func() models.SecretType) 
 	return c
 }
 
-// ToString mocks base method.
-func (m *MockISecretData) ToString() string {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ToString")
-	ret0, _ := ret[0].(string)
-	return ret0
-}
-
-// ToString indicates an expected call of ToString.
-func (mr *MockISecretDataMockRecorder) ToString() *MockISecretDataToStringCall {
-	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ToString", reflect.TypeOf((*MockISecretData)(nil).ToString))
-	return &MockISecretDataToStringCall{Call: call}
-}
-
-// MockISecretDataToStringCall wrap *gomock.Call
-type MockISecretDataToStringCall struct {
-	*gomock.Call
-}
-
-// Return rewrite *gomock.Call.Return
-func (c *MockISecretDataToStringCall) Return(arg0 string) *MockISecretDataToStringCall {
-	c.Call = c.Call.Return(arg0)
-	return c
-}
-
-// Do rewrite *gomock.Call.Do
-func (c *MockISecretDataToStringCall) Do(f func() string) *MockISecretDataToStringCall {
-	c.Call = c.Call.Do(f)
-	return c
-}
-
-// DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockISecretDataToStringCall) DoAndReturn(f func() string) *MockISecretDataToStringCall {
-	c.Call = c.Call.DoAndReturn(f)
-	return c
-}
-
 // MockService is a mock of Service interface.
 type MockService struct {
 	ctrl     *gomock.Controller

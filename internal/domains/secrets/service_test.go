@@ -236,11 +236,10 @@ func TestService_Create_Success(t *testing.T) {
 		Return(true, nil)
 
 	enc.EXPECT().
-		Encrypt([]byte(testPassphrase), []byte(testutils.STRING)).
+		Encrypt([]byte(testPassphrase), []byte("{}")).
 		Return(testContent, nil)
 
 	data := mocks.NewMockISecretData(ctrl)
-	data.EXPECT().ToString().Return(testutils.STRING)
 	data.EXPECT().SecretType().Return(models.SecretTypePwd)
 
 	repo.EXPECT().
@@ -334,9 +333,8 @@ func TestService_Create_Fails_Encrypt(t *testing.T) {
 		Return(true, nil)
 
 	data := mocks.NewMockISecretData(ctrl)
-	data.EXPECT().ToString().Return(testutils.STRING)
 	enc.EXPECT().
-		Encrypt([]byte(testPassphrase), []byte(testutils.STRING)).
+		Encrypt([]byte(testPassphrase), []byte("{}")).
 		Return(nil, testutils.Err)
 
 	_, err := service.Create(context.Background(), testOwnerID, testPassphrase, testName, data)
@@ -363,9 +361,8 @@ func TestService_Create_Fails_Create(t *testing.T) {
 		Return(true, nil)
 
 	data := mocks.NewMockISecretData(ctrl)
-	data.EXPECT().ToString().Return(testutils.STRING)
 	enc.EXPECT().
-		Encrypt([]byte(testPassphrase), []byte(testutils.STRING)).
+		Encrypt([]byte(testPassphrase), []byte("{}")).
 		Return(testContent, nil)
 
 	data.EXPECT().SecretType().Return(models.SecretTypePwd)
@@ -404,7 +401,6 @@ func TestService_Update_Success(t *testing.T) {
 		Return(secret, nil)
 
 	data := mocks.NewMockISecretData(ctrl)
-	data.EXPECT().ToString().Return(testutils.STRING)
 	data.EXPECT().SecretType().Return(secret.Type)
 
 	hasher.EXPECT().
@@ -412,7 +408,7 @@ func TestService_Update_Success(t *testing.T) {
 		Return(true, nil)
 
 	enc.EXPECT().
-		Encrypt([]byte(testPassphrase), []byte(testutils.STRING)).
+		Encrypt([]byte(testPassphrase), []byte("{}")).
 		Return(testContent, nil)
 
 	repo.EXPECT().
@@ -518,14 +514,13 @@ func TestService_Update_Fails_Encrypt(t *testing.T) {
 
 	data := mocks.NewMockISecretData(ctrl)
 	data.EXPECT().SecretType().Return(secret.Type)
-	data.EXPECT().ToString().Return(testutils.STRING)
 
 	hasher.EXPECT().
 		Compare(secret.Owner.PassphraseHash, testPassphrase).
 		Return(true, nil)
 
 	enc.EXPECT().
-		Encrypt([]byte(testPassphrase), []byte(testutils.STRING)).
+		Encrypt([]byte(testPassphrase), []byte("{}")).
 		Return(nil, testutils.Err)
 
 	err := service.Update(context.Background(), testID, testOwnerID, testPassphrase, testName, data)
@@ -554,14 +549,13 @@ func TestService_Update_Fails_Update(t *testing.T) {
 
 	data := mocks.NewMockISecretData(ctrl)
 	data.EXPECT().SecretType().Return(secret.Type)
-	data.EXPECT().ToString().Return(testutils.STRING)
 
 	hasher.EXPECT().
 		Compare(secret.Owner.PassphraseHash, testPassphrase).
 		Return(true, nil)
 
 	enc.EXPECT().
-		Encrypt([]byte(testPassphrase), []byte(testutils.STRING)).
+		Encrypt([]byte(testPassphrase), []byte("{}")).
 		Return(testContent, nil)
 
 	repo.EXPECT().

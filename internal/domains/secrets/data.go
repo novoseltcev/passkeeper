@@ -1,19 +1,11 @@
 package secrets
 
-import (
-	"fmt"
-
-	"github.com/novoseltcev/passkeeper/internal/models"
-)
+import "github.com/novoseltcev/passkeeper/internal/models"
 
 type PasswordData struct {
-	Login    string
-	Password string
-	Meta     map[string]any
-}
-
-func (p PasswordData) ToString() string {
-	return fmt.Sprintf(`{"login":"%s","password":"%s","meta":"%s"}`, p.Login, p.Password, p.Meta)
+	Login    string         `json:"login"`
+	Password string         `json:"password"`
+	Meta     map[string]any `json:"meta"`
 }
 
 func (p PasswordData) SecretType() models.SecretType {
@@ -21,18 +13,11 @@ func (p PasswordData) SecretType() models.SecretType {
 }
 
 type CardData struct {
-	Number string
-	Holder string
-	Exp    string
-	CVV    string
-	Meta   map[string]any
-}
-
-func (c CardData) ToString() string {
-	return fmt.Sprintf(
-		`{"number":"%s","holder":"%s","exp":"%s","cvv":"%s","meta":"%s"}`,
-		c.Number, c.Holder, c.Exp, c.CVV, c.Meta,
-	)
+	Number string         `json:"number"`
+	Holder string         `json:"holder"`
+	Exp    string         `json:"exp"`
+	CVV    string         `json:"cvv"`
+	Meta   map[string]any `json:"meta"`
 }
 
 func (c CardData) SecretType() models.SecretType {
@@ -40,12 +25,8 @@ func (c CardData) SecretType() models.SecretType {
 }
 
 type TextData struct {
-	Content string
-	Meta    map[string]any
-}
-
-func (t TextData) ToString() string {
-	return fmt.Sprintf(`{"content":"%s","meta":"%s"}`, t.Content, t.Meta)
+	Content string         `json:"content"`
+	Meta    map[string]any `json:"meta"`
 }
 
 func (t TextData) SecretType() models.SecretType {
@@ -53,13 +34,9 @@ func (t TextData) SecretType() models.SecretType {
 }
 
 type FileData struct {
-	Filename string
-	Content  string
-	Meta     map[string]any
-}
-
-func (f FileData) ToString() string {
-	return fmt.Sprintf(`{"filename":"%s","content":"%s","meta":"%s"}`, f.Filename, f.Content, f.Meta)
+	Filename string         `json:"filename"`
+	Content  string         `json:"content"`
+	Meta     map[string]any `json:"meta"`
 }
 
 func (f FileData) SecretType() models.SecretType {

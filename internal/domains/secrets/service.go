@@ -3,6 +3,7 @@ package secrets
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/novoseltcev/passkeeper/internal/models"
 )
@@ -18,7 +19,6 @@ func NewPage[T any](items []T, total uint64) *Page[T] {
 }
 
 type ISecretData interface {
-	ToString() string
 	SecretType() models.SecretType
 }
 
@@ -133,7 +133,12 @@ func (s *service) Create(
 		return "", err
 	}
 
-	encryptedData, err := s.enc.Encrypt([]byte(passphrase), []byte(data.ToString()))
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return "", err
+	}
+
+	encryptedData, err := s.enc.Encrypt([]byte(passphrase), jsonData)
 	if err != nil {
 		return "", err
 	}
@@ -160,7 +165,12 @@ func (s *service) Update(
 		return err
 	}
 
-	encData, err := s.enc.Encrypt([]byte(passphrase), []byte(data.ToString()))
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	encData, err := s.enc.Encrypt([]byte(passphrase), jsonData)
 	if err != nil {
 		return err
 	}
