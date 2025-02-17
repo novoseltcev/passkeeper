@@ -57,7 +57,7 @@ func Cmd() *cobra.Command {
 			app := app.New(
 				cfg, logger, db,
 				repo.NewTokenRepository(db),
-				secrets.NewService(repo.NewSecretRepository(db), hasher, aes.New(aes.AES_256_BIT_KEY_LENGTH)),
+				secrets.NewService(repo.NewSecretRepository(db), hasher, aes.New(aes.AES256BitKeyLength)),
 				user.NewService(repo.NewUserRepository(db), hasher),
 			)
 

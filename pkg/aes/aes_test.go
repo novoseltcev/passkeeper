@@ -16,7 +16,7 @@ func TestAES_Encrypt_and_Decrypt(t *testing.T) {
 	key := []byte(strings.Repeat("a", 16))
 	data := []byte("data")
 
-	gcm := aes.New(aes.AES_256_BIT_KEY_LENGTH)
+	gcm := aes.New(aes.AES256BitKeyLength)
 	encrypted, err := gcm.Encrypt(key, data)
 	require.NoError(t, err)
 
@@ -43,6 +43,6 @@ func TestAES_Dencrypt_Fails_InvalidKeyLength(t *testing.T) {
 func TestAES_Decrypt_Fails_InvalidDataLen(t *testing.T) {
 	t.Parallel()
 
-	_, err := aes.New(aes.AES_256_BIT_KEY_LENGTH).Decrypt([]byte("invalid-key"), nil)
+	_, err := aes.New(aes.AES128BitKeyLength).Decrypt([]byte("invalid-key"), nil)
 	assert.ErrorContains(t, err, "invalid data length")
 }

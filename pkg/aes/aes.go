@@ -12,9 +12,9 @@ import (
 var ErrInvalidDataLen = errors.New("invalid data length")
 
 const (
-	AES_128_BIT_KEY_LENGTH = 16
-	AES_192_BIT_KEY_LENGTH = 24
-	AES_256_BIT_KEY_LENGTH = 32
+	AES128BitKeyLength = 16
+	AES192BitKeyLength = 24
+	AES256BitKeyLength = 32
 )
 
 type AES struct {
