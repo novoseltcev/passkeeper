@@ -139,7 +139,7 @@ func (mngr *manager) ParseToken(ctx context.Context, tokenString string) (*Token
 		_, err := mngr.storage.Load(ctx, token.ID)
 		if err != nil {
 			if errors.Is(err, ErrTokenNotFound) {
-				return nil, ParseError{ValidationError: jwt.ValidationError{
+				return nil, &ParseError{ValidationError: jwt.ValidationError{
 					Inner:  ErrTokenNotFound,
 					Errors: jwt.ValidationErrorExpired,
 				}}
