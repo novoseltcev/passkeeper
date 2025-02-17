@@ -80,17 +80,13 @@ type Hasher interface {
 }
 
 type Encryptor interface {
-	Encrypt(v string) ([]byte, error)
-}
-
-type EncryptorFactory interface {
-	Create(passphrase string) Encryptor
+	Encrypt(passphrase, v []byte) ([]byte, error)
 }
 
 type service struct {
-	repo             Repository
-	hasher           Hasher
-	encryptorFactory EncryptorFactory
+	repo   Repository
+	hasher Hasher
+	enc    Encryptor
 }
 
 var _ Service = (*service)(nil)
@@ -98,9 +94,9 @@ var _ Service = (*service)(nil)
 func NewService(
 	repo Repository,
 	hasher Hasher,
-	encryptorFactory EncryptorFactory,
+	enc Encryptor,
 ) *service { // nolint: revive
-	return &service{repo: repo, hasher: hasher, encryptorFactory: encryptorFactory}
+	return &service{repo: repo, hasher: hasher, enc: enc}
 }
 
 func (s *service) Get(ctx context.Context, id models.SecretID, ownerID models.UserID) (*models.Secret, error) {
@@ -121,7 +117,7 @@ func (s *service) Create(
 		return "", err
 	}
 
-	encryptedData, err := s.encryptorFactory.Create(passphrase).Encrypt(data.ToString())
+	encryptedData, err := s.enc.Encrypt([]byte(passphrase), []byte(data.ToString()))
 	if err != nil {
 		return "", err
 	}
@@ -148,7 +144,7 @@ func (s *service) Update(
 		return err
 	}
 
-	encData, err := s.encryptorFactory.Create(passphrase).Encrypt(data.ToString())
+	encData, err := s.enc.Encrypt([]byte(passphrase), []byte(data.ToString()))
 	if err != nil {
 		return err
 	}

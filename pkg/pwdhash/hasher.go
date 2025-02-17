@@ -1,6 +1,6 @@
 package pwdhash
 
 type Hasher interface {
-	Generate(data string) ([]byte, error)
-	Compare(hash []byte, data string) (bool, error)
+	Generate(data string) (string, error)
+	Compare(hash, data string) (bool, error)
 }

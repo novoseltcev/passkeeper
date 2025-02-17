@@ -10,6 +10,8 @@ type BCryptHasher struct {
 	cost int
 }
 
+var _ Hasher = (*BCryptHasher)(nil)
+
 func NewBCrypt(cost int) *BCryptHasher {
 	return &BCryptHasher{
 		cost: cost,

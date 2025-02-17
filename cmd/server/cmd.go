@@ -15,6 +15,7 @@ import (
 	"github.com/novoseltcev/passkeeper/internal/domains/secrets"
 	"github.com/novoseltcev/passkeeper/internal/domains/user"
 	"github.com/novoseltcev/passkeeper/internal/repo"
+	"github.com/novoseltcev/passkeeper/pkg/aes"
 	"github.com/novoseltcev/passkeeper/pkg/pwdhash"
 )
 
@@ -56,7 +57,7 @@ func Cmd() *cobra.Command {
 			app := app.New(
 				cfg, logger, db,
 				repo.NewTokenRepository(db),
-				secrets.NewService(repo.NewSecretRepository(db), hasher, nil),
+				secrets.NewService(repo.NewSecretRepository(db), hasher, aes.New(aes.AES_256_BIT_KEY_LENGTH)),
 				user.NewService(repo.NewUserRepository(db), hasher),
 			)
 

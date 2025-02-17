@@ -423,18 +423,18 @@ func (m *MockEncryptor) EXPECT() *MockEncryptorMockRecorder {
 }
 
 // Encrypt mocks base method.
-func (m *MockEncryptor) Encrypt(v string) ([]byte, error) {
+func (m *MockEncryptor) Encrypt(passphrase, v []byte) ([]byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Encrypt", v)
+	ret := m.ctrl.Call(m, "Encrypt", passphrase, v)
 	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Encrypt indicates an expected call of Encrypt.
-func (mr *MockEncryptorMockRecorder) Encrypt(v any) *MockEncryptorEncryptCall {
+func (mr *MockEncryptorMockRecorder) Encrypt(passphrase, v any) *MockEncryptorEncryptCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Encrypt", reflect.TypeOf((*MockEncryptor)(nil).Encrypt), v)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Encrypt", reflect.TypeOf((*MockEncryptor)(nil).Encrypt), passphrase, v)
 	return &MockEncryptorEncryptCall{Call: call}
 }
 
@@ -450,75 +450,13 @@ func (c *MockEncryptorEncryptCall) Return(arg0 []byte, arg1 error) *MockEncrypto
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockEncryptorEncryptCall) Do(f func(string) ([]byte, error)) *MockEncryptorEncryptCall {
+func (c *MockEncryptorEncryptCall) Do(f func([]byte, []byte) ([]byte, error)) *MockEncryptorEncryptCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockEncryptorEncryptCall) DoAndReturn(f func(string) ([]byte, error)) *MockEncryptorEncryptCall {
-	c.Call = c.Call.DoAndReturn(f)
-	return c
-}
-
-// MockEncryptorFactory is a mock of EncryptorFactory interface.
-type MockEncryptorFactory struct {
-	ctrl     *gomock.Controller
-	recorder *MockEncryptorFactoryMockRecorder
-	isgomock struct{}
-}
-
-// MockEncryptorFactoryMockRecorder is the mock recorder for MockEncryptorFactory.
-type MockEncryptorFactoryMockRecorder struct {
-	mock *MockEncryptorFactory
-}
-
-// NewMockEncryptorFactory creates a new mock instance.
-func NewMockEncryptorFactory(ctrl *gomock.Controller) *MockEncryptorFactory {
-	mock := &MockEncryptorFactory{ctrl: ctrl}
-	mock.recorder = &MockEncryptorFactoryMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockEncryptorFactory) EXPECT() *MockEncryptorFactoryMockRecorder {
-	return m.recorder
-}
-
-// Create mocks base method.
-func (m *MockEncryptorFactory) Create(passphrase string) secrets.Encryptor {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", passphrase)
-	ret0, _ := ret[0].(secrets.Encryptor)
-	return ret0
-}
-
-// Create indicates an expected call of Create.
-func (mr *MockEncryptorFactoryMockRecorder) Create(passphrase any) *MockEncryptorFactoryCreateCall {
-	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockEncryptorFactory)(nil).Create), passphrase)
-	return &MockEncryptorFactoryCreateCall{Call: call}
-}
-
-// MockEncryptorFactoryCreateCall wrap *gomock.Call
-type MockEncryptorFactoryCreateCall struct {
-	*gomock.Call
-}
-
-// Return rewrite *gomock.Call.Return
-func (c *MockEncryptorFactoryCreateCall) Return(arg0 secrets.Encryptor) *MockEncryptorFactoryCreateCall {
-	c.Call = c.Call.Return(arg0)
-	return c
-}
-
-// Do rewrite *gomock.Call.Do
-func (c *MockEncryptorFactoryCreateCall) Do(f func(string) secrets.Encryptor) *MockEncryptorFactoryCreateCall {
-	c.Call = c.Call.Do(f)
-	return c
-}
-
-// DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockEncryptorFactoryCreateCall) DoAndReturn(f func(string) secrets.Encryptor) *MockEncryptorFactoryCreateCall {
+func (c *MockEncryptorEncryptCall) DoAndReturn(f func([]byte, []byte) ([]byte, error)) *MockEncryptorEncryptCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

@@ -141,8 +141,8 @@ func TestService_Create_Success(t *testing.T) {
 
 	repo := mocks.NewMockRepository(ctrl)
 	hasher := mocks.NewMockHasher(ctrl)
-	encryptorFactory := mocks.NewMockEncryptorFactory(ctrl)
-	service := secrets.NewService(repo, hasher, encryptorFactory)
+	enc := mocks.NewMockEncryptor(ctrl)
+	service := secrets.NewService(repo, hasher, enc)
 
 	owner := &models.User{PassphraseHash: testHash}
 	repo.EXPECT().
@@ -153,9 +153,9 @@ func TestService_Create_Success(t *testing.T) {
 		Compare(owner.PassphraseHash, testPassphrase).
 		Return(true, nil)
 
-	encryptor := mocks.NewMockEncryptor(ctrl)
-	encryptorFactory.EXPECT().Create(testPassphrase).Return(encryptor)
-	encryptor.EXPECT().Encrypt(testutils.STRING).Return(testContent, nil)
+	enc.EXPECT().
+		Encrypt([]byte(testPassphrase), []byte(testutils.STRING)).
+		Return(testContent, nil)
 
 	data := mocks.NewMockISecretData(ctrl)
 	data.EXPECT().ToString().Return(testutils.STRING)
@@ -240,8 +240,8 @@ func TestService_Create_Fails_Encrypt(t *testing.T) {
 
 	repo := mocks.NewMockRepository(ctrl)
 	hasher := mocks.NewMockHasher(ctrl)
-	encryptorFactory := mocks.NewMockEncryptorFactory(ctrl)
-	service := secrets.NewService(repo, hasher, encryptorFactory)
+	enc := mocks.NewMockEncryptor(ctrl)
+	service := secrets.NewService(repo, hasher, enc)
 
 	repo.EXPECT().
 		GetOwner(gomock.Any(), testOwnerID).
@@ -251,12 +251,11 @@ func TestService_Create_Fails_Encrypt(t *testing.T) {
 		Compare(testHash, testPassphrase).
 		Return(true, nil)
 
-	encryptor := mocks.NewMockEncryptor(ctrl)
-	encryptorFactory.EXPECT().Create(testPassphrase).Return(encryptor)
-	encryptor.EXPECT().Encrypt(testutils.STRING).Return(nil, testutils.Err)
-
 	data := mocks.NewMockISecretData(ctrl)
 	data.EXPECT().ToString().Return(testutils.STRING)
+	enc.EXPECT().
+		Encrypt([]byte(testPassphrase), []byte(testutils.STRING)).
+		Return(nil, testutils.Err)
 
 	_, err := service.Create(context.Background(), testOwnerID, testPassphrase, testName, data)
 	assert.ErrorIs(t, err, testutils.Err)
@@ -269,8 +268,8 @@ func TestService_Create_Fails_Create(t *testing.T) {
 
 	repo := mocks.NewMockRepository(ctrl)
 	hasher := mocks.NewMockHasher(ctrl)
-	encryptorFactory := mocks.NewMockEncryptorFactory(ctrl)
-	service := secrets.NewService(repo, hasher, encryptorFactory)
+	enc := mocks.NewMockEncryptor(ctrl)
+	service := secrets.NewService(repo, hasher, enc)
 
 	owner := &models.User{PassphraseHash: testHash}
 	repo.EXPECT().
@@ -281,12 +280,12 @@ func TestService_Create_Fails_Create(t *testing.T) {
 		Compare(owner.PassphraseHash, testPassphrase).
 		Return(true, nil)
 
-	encryptor := mocks.NewMockEncryptor(ctrl)
-	encryptorFactory.EXPECT().Create(testPassphrase).Return(encryptor)
-	encryptor.EXPECT().Encrypt(testutils.STRING).Return(testContent, nil)
-
 	data := mocks.NewMockISecretData(ctrl)
 	data.EXPECT().ToString().Return(testutils.STRING)
+	enc.EXPECT().
+		Encrypt([]byte(testPassphrase), []byte(testutils.STRING)).
+		Return(testContent, nil)
+
 	data.EXPECT().SecretType().Return(models.SecretTypePwd)
 
 	repo.EXPECT().
@@ -309,8 +308,8 @@ func TestService_Update_Success(t *testing.T) {
 
 	repo := mocks.NewMockRepository(ctrl)
 	hasher := mocks.NewMockHasher(ctrl)
-	encryptorFactory := mocks.NewMockEncryptorFactory(ctrl)
-	service := secrets.NewService(repo, hasher, encryptorFactory)
+	enc := mocks.NewMockEncryptor(ctrl)
+	service := secrets.NewService(repo, hasher, enc)
 
 	secret := &models.Secret{
 		Name:  testutils.STRING,
@@ -323,16 +322,16 @@ func TestService_Update_Success(t *testing.T) {
 		Return(secret, nil)
 
 	data := mocks.NewMockISecretData(ctrl)
-	data.EXPECT().SecretType().Return(secret.Type)
 	data.EXPECT().ToString().Return(testutils.STRING)
+	data.EXPECT().SecretType().Return(secret.Type)
 
 	hasher.EXPECT().
 		Compare(secret.Owner.PassphraseHash, testPassphrase).
 		Return(true, nil)
 
-	encryptor := mocks.NewMockEncryptor(ctrl)
-	encryptorFactory.EXPECT().Create(testPassphrase).Return(encryptor)
-	encryptor.EXPECT().Encrypt(testutils.STRING).Return(testContent, nil)
+	enc.EXPECT().
+		Encrypt([]byte(testPassphrase), []byte(testutils.STRING)).
+		Return(testContent, nil)
 
 	repo.EXPECT().
 		Update(gomock.Any(), testID, &models.Secret{
@@ -422,8 +421,8 @@ func TestService_Update_Fails_Encrypt(t *testing.T) {
 
 	repo := mocks.NewMockRepository(ctrl)
 	hasher := mocks.NewMockHasher(ctrl)
-	encryptorFactory := mocks.NewMockEncryptorFactory(ctrl)
-	service := secrets.NewService(repo, hasher, encryptorFactory)
+	enc := mocks.NewMockEncryptor(ctrl)
+	service := secrets.NewService(repo, hasher, enc)
 
 	secret := &models.Secret{
 		Name:  testutils.STRING,
@@ -443,9 +442,9 @@ func TestService_Update_Fails_Encrypt(t *testing.T) {
 		Compare(secret.Owner.PassphraseHash, testPassphrase).
 		Return(true, nil)
 
-	encryptor := mocks.NewMockEncryptor(ctrl)
-	encryptorFactory.EXPECT().Create(testPassphrase).Return(encryptor)
-	encryptor.EXPECT().Encrypt(testutils.STRING).Return(nil, testutils.Err)
+	enc.EXPECT().
+		Encrypt([]byte(testPassphrase), []byte(testutils.STRING)).
+		Return(nil, testutils.Err)
 
 	err := service.Update(context.Background(), testID, testOwnerID, testPassphrase, testName, data)
 	assert.ErrorIs(t, err, testutils.Err)
@@ -458,8 +457,8 @@ func TestService_Update_Fails_Update(t *testing.T) {
 
 	repo := mocks.NewMockRepository(ctrl)
 	hasher := mocks.NewMockHasher(ctrl)
-	encryptorFactory := mocks.NewMockEncryptorFactory(ctrl)
-	service := secrets.NewService(repo, hasher, encryptorFactory)
+	enc := mocks.NewMockEncryptor(ctrl)
+	service := secrets.NewService(repo, hasher, enc)
 
 	secret := &models.Secret{
 		Name:  testutils.STRING,
@@ -479,9 +478,9 @@ func TestService_Update_Fails_Update(t *testing.T) {
 		Compare(secret.Owner.PassphraseHash, testPassphrase).
 		Return(true, nil)
 
-	encryptor := mocks.NewMockEncryptor(ctrl)
-	encryptorFactory.EXPECT().Create(testPassphrase).Return(encryptor)
-	encryptor.EXPECT().Encrypt(testutils.STRING).Return(testContent, nil)
+	enc.EXPECT().
+		Encrypt([]byte(testPassphrase), []byte(testutils.STRING)).
+		Return(testContent, nil)
 
 	repo.EXPECT().
 		Update(gomock.Any(), testID, &models.Secret{
