@@ -30,16 +30,24 @@ func TestService_Get_Success(t *testing.T) {
 	t.Cleanup(ctrl.Finish)
 
 	repo := mocks.NewMockRepository(ctrl)
-	service := secrets.NewService(repo, nil, nil)
+	enc := mocks.NewMockEncryptor(ctrl)
+	service := secrets.NewService(repo, nil, enc)
 
-	got := &models.Secret{Owner: &models.User{ID: testOwnerID}}
+	got := &models.Secret{Data: testContent, Owner: &models.User{ID: testOwnerID}}
 	repo.EXPECT().
 		Get(gomock.Any(), testID).
 		Return(got, nil)
 
-	want, err := service.Get(context.Background(), testID, testOwnerID)
+	enc.EXPECT().
+		Decrypt([]byte(testPassphrase), got.Data).
+		Return([]byte(testutils.STRING), nil)
+
+	secret, err := service.Get(context.Background(), testID, testOwnerID, testPassphrase)
 	require.NoError(t, err)
-	assert.Equal(t, want, got)
+	assert.Equal(t, &models.Secret{
+		Data:  []byte(testutils.STRING),
+		Owner: &models.User{ID: testOwnerID},
+	}, secret)
 }
 
 func TestService_Get_Fails_Get(t *testing.T) {
@@ -71,7 +79,7 @@ func TestService_Get_Fails_Get(t *testing.T) {
 				Get(gomock.Any(), testID).
 				Return(nil, tt.err)
 
-			_, err := service.Get(context.Background(), testID, testOwnerID)
+			_, err := service.Get(context.Background(), testID, testOwnerID, testPassphrase)
 			assert.ErrorIs(t, err, tt.err)
 		})
 	}
@@ -89,8 +97,30 @@ func TestService_Get_Fails_AnotherOwner(t *testing.T) {
 		Get(gomock.Any(), testID).
 		Return(&models.Secret{Owner: &models.User{ID: testutils.UNKNOWN}}, nil)
 
-	_, err := service.Get(context.Background(), testID, testOwnerID)
+	_, err := service.Get(context.Background(), testID, testOwnerID, testPassphrase)
 	assert.ErrorIs(t, err, secrets.ErrAnotherOwner)
+}
+
+func TestService_Get_Fails_Decrypt(t *testing.T) {
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+
+	repo := mocks.NewMockRepository(ctrl)
+	enc := mocks.NewMockEncryptor(ctrl)
+	service := secrets.NewService(repo, nil, enc)
+
+	got := &models.Secret{Data: testContent, Owner: &models.User{ID: testOwnerID}}
+	repo.EXPECT().
+		Get(gomock.Any(), testID).
+		Return(got, nil)
+
+	enc.EXPECT().
+		Decrypt([]byte(testPassphrase), got.Data).
+		Return(nil, testutils.Err)
+
+	_, err := service.Get(context.Background(), testID, testOwnerID, testPassphrase)
+	assert.ErrorIs(t, err, testutils.Err)
 }
 
 func TestService_GetPage_Success(t *testing.T) {

@@ -30,7 +30,7 @@ func guardMock(c *gin.Context) {
 	c.Next()
 }
 
-func TestGetByID_Success(t *testing.T) {
+func TestDecryptByID_Success(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -40,7 +40,7 @@ func TestGetByID_Success(t *testing.T) {
 	secrets.AddRoutes(&root.RouterGroup, service, guardMock)
 
 	service.EXPECT().
-		Get(gomock.Any(), testID, testOwnerID).
+		Get(gomock.Any(), testID, testOwnerID, testPassphrase).
 		Return(&models.Secret{
 			ID:   testID,
 			Name: testName,
@@ -50,7 +50,8 @@ func TestGetByID_Success(t *testing.T) {
 
 	apitest.Handler(root.Handler()).
 		Debug().
-		Getf("/secrets/%s", testID).
+		Postf("/secrets/%s/decrypt", testID).
+		Bodyf(`{"passphrase":"%s"}`, testPassphrase).
 		Expect(t).
 		Status(http.StatusOK).
 		Bodyf(`
@@ -62,11 +63,62 @@ func TestGetByID_Success(t *testing.T) {
 		 	"type":"file",
 		 	"data":"%s"
 		  }
-		}`, testID, testName, testHex).
+		}`, testID, testName, testName).
 		End()
 }
 
-func TestGet_Fails(t *testing.T) {
+func TestDecryptByID_Fails_Validate(t *testing.T) {
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+
+	tests := []struct {
+		name   string
+		body   string
+		status int
+		errs   []string
+	}{
+		{
+			name:   "invalid json body",
+			body:   `{`,
+			status: http.StatusBadRequest,
+		},
+		{
+			name:   "empty",
+			body:   `{}`,
+			status: http.StatusUnprocessableEntity,
+			errs:   []string{"Field validation for 'Passphrase' failed on the 'required' tag"},
+		},
+		{
+			name:   "empty field",
+			body:   `{"passphrase":""}`,
+			status: http.StatusUnprocessableEntity,
+			errs:   []string{"Field validation for 'Passphrase' failed on the 'required' tag"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			root := gin.Default()
+			secrets.AddRoutes(&root.RouterGroup, mocks.NewMockService(ctrl), guardMock)
+
+			result := apitest.Handler(root.Handler()).
+				Debug().
+				Postf("/secrets/%s/decrypt", testID).
+				Body(tt.body).
+				Expect(t).
+				Status(tt.status).
+				End()
+
+			if len(tt.errs) > 0 {
+				checkErrors(t, result, tt.errs)
+			}
+		})
+	}
+}
+
+func TestGet_Fails_Get(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -101,13 +153,14 @@ func TestGet_Fails(t *testing.T) {
 			secrets.AddRoutes(&root.RouterGroup, service, guardMock)
 
 			service.EXPECT().
-				Get(gomock.Any(), testID, testOwnerID).
+				Get(gomock.Any(), testID, testOwnerID, testPassphrase).
 				Return(nil, tt.err)
 
 			apitest.New(tt.name).
 				Handler(root.Handler()).
 				Debug().
-				Getf("/secrets/%s", testID).
+				Postf("/secrets/%s/decrypt", testID).
+				Bodyf(`{"passphrase":"%s"}`, testPassphrase).
 				Expect(t).
 				Status(tt.status).
 				End()

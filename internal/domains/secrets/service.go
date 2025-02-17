@@ -30,7 +30,7 @@ type Service interface {
 	// Domain errors:
 	// - ErrSecretNotFound
 	// - ErrAnotherOwner
-	Get(ctx context.Context, id models.SecretID, ownerID models.UserID) (*models.Secret, error)
+	Get(ctx context.Context, id models.SecretID, ownerID models.UserID, passphrase string) (*models.Secret, error)
 
 	// GetPage returns a page of owner's secrets with pagination.
 	// If the owner is not found, an error will be returned.
@@ -81,6 +81,7 @@ type Hasher interface {
 
 type Encryptor interface {
 	Encrypt(passphrase, v []byte) ([]byte, error)
+	Decrypt(passphrase, v []byte) ([]byte, error)
 }
 
 type service struct {
@@ -99,8 +100,19 @@ func NewService(
 	return &service{repo: repo, hasher: hasher, enc: enc}
 }
 
-func (s *service) Get(ctx context.Context, id models.SecretID, ownerID models.UserID) (*models.Secret, error) {
-	return s.getMySecret(ctx, id, ownerID)
+func (s *service) Get(
+	ctx context.Context, id models.SecretID, ownerID models.UserID, passphrase string,
+) (*models.Secret, error) {
+	secret, err := s.getMySecret(ctx, id, ownerID)
+	if err != nil {
+		return nil, err
+	}
+
+	if secret.Data, err = s.enc.Decrypt([]byte(passphrase), secret.Data); err != nil {
+		return nil, err
+	}
+
+	return secret, nil
 }
 
 func (s *service) GetPage(ctx context.Context,

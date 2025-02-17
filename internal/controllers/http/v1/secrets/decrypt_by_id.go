@@ -1,11 +1,11 @@
 package secrets
 
 import (
-	"encoding/hex"
 	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 
 	"github.com/novoseltcev/passkeeper/internal/app/auth"
 	"github.com/novoseltcev/passkeeper/internal/controllers/http/common/response"
@@ -13,12 +13,28 @@ import (
 	"github.com/novoseltcev/passkeeper/internal/models"
 )
 
-func GetByID(service domain.Service) func(c *gin.Context) {
+func DecryptByID(service domain.Service) func(c *gin.Context) {
+	type reqBody struct {
+		Passphrase string `binding:"required"`
+	}
+
 	return func(c *gin.Context) {
 		ownerID := auth.GetUserID(c)
 		id := models.SecretID(c.Param("id"))
 
-		secret, err := service.Get(c, id, ownerID)
+		var body reqBody
+		if err := c.ShouldBindJSON(&body); err != nil {
+			var vErr validator.ValidationErrors
+			if errors.As(err, &vErr) {
+				c.JSON(http.StatusUnprocessableEntity, response.NewValidationError(vErr))
+			} else {
+				c.JSON(http.StatusBadRequest, response.NewError(err))
+			}
+
+			return
+		}
+
+		secret, err := service.Get(c, id, ownerID, body.Passphrase)
 		if err != nil {
 			if errors.Is(err, domain.ErrSecretNotFound) {
 				c.AbortWithStatus(http.StatusNotFound)
@@ -35,7 +51,7 @@ func GetByID(service domain.Service) func(c *gin.Context) {
 			ID:   string(secret.ID),
 			Name: secret.Name,
 			Type: secret.Type.String(),
-			Data: hex.EncodeToString(secret.Data),
+			Data: string(secret.Data),
 		}))
 	}
 }
@@ -43,6 +59,6 @@ func GetByID(service domain.Service) func(c *gin.Context) {
 type responseSecret struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
-	Type string `binding:"oneof=password card text file" json:"type"`
-	Data string `binding:"hexadecimal"                   json:"data"`
+	Type string `json:"type"`
+	Data string `json:"data"`
 }

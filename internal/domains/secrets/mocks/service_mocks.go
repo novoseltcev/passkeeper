@@ -220,18 +220,18 @@ func (c *MockServiceDeleteCall) DoAndReturn(f func(context.Context, models.Secre
 }
 
 // Get mocks base method.
-func (m *MockService) Get(ctx context.Context, id models.SecretID, ownerID models.UserID) (*models.Secret, error) {
+func (m *MockService) Get(ctx context.Context, id models.SecretID, ownerID models.UserID, passphrase string) (*models.Secret, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", ctx, id, ownerID)
+	ret := m.ctrl.Call(m, "Get", ctx, id, ownerID, passphrase)
 	ret0, _ := ret[0].(*models.Secret)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockServiceMockRecorder) Get(ctx, id, ownerID any) *MockServiceGetCall {
+func (mr *MockServiceMockRecorder) Get(ctx, id, ownerID, passphrase any) *MockServiceGetCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockService)(nil).Get), ctx, id, ownerID)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockService)(nil).Get), ctx, id, ownerID, passphrase)
 	return &MockServiceGetCall{Call: call}
 }
 
@@ -247,13 +247,13 @@ func (c *MockServiceGetCall) Return(arg0 *models.Secret, arg1 error) *MockServic
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceGetCall) Do(f func(context.Context, models.SecretID, models.UserID) (*models.Secret, error)) *MockServiceGetCall {
+func (c *MockServiceGetCall) Do(f func(context.Context, models.SecretID, models.UserID, string) (*models.Secret, error)) *MockServiceGetCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceGetCall) DoAndReturn(f func(context.Context, models.SecretID, models.UserID) (*models.Secret, error)) *MockServiceGetCall {
+func (c *MockServiceGetCall) DoAndReturn(f func(context.Context, models.SecretID, models.UserID, string) (*models.Secret, error)) *MockServiceGetCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -420,6 +420,45 @@ func NewMockEncryptor(ctrl *gomock.Controller) *MockEncryptor {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockEncryptor) EXPECT() *MockEncryptorMockRecorder {
 	return m.recorder
+}
+
+// Decrypt mocks base method.
+func (m *MockEncryptor) Decrypt(passphrase, v []byte) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Decrypt", passphrase, v)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Decrypt indicates an expected call of Decrypt.
+func (mr *MockEncryptorMockRecorder) Decrypt(passphrase, v any) *MockEncryptorDecryptCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Decrypt", reflect.TypeOf((*MockEncryptor)(nil).Decrypt), passphrase, v)
+	return &MockEncryptorDecryptCall{Call: call}
+}
+
+// MockEncryptorDecryptCall wrap *gomock.Call
+type MockEncryptorDecryptCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockEncryptorDecryptCall) Return(arg0 []byte, arg1 error) *MockEncryptorDecryptCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockEncryptorDecryptCall) Do(f func([]byte, []byte) ([]byte, error)) *MockEncryptorDecryptCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockEncryptorDecryptCall) DoAndReturn(f func([]byte, []byte) ([]byte, error)) *MockEncryptorDecryptCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
 }
 
 // Encrypt mocks base method.

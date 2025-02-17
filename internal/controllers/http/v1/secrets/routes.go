@@ -10,7 +10,7 @@ func AddRoutes(rg *gin.RouterGroup, service secrets.Service, guard gin.HandlerFu
 	secretGroup := rg.Group("/secrets", guard)
 	{
 		secretGroup.GET("", GetPage(service))
-		secretGroup.GET("/:id", GetByID(service))
+		secretGroup.POST("/:id/decrypt", DecryptByID(service))
 		secretGroup.DELETE("/:id", Delete(service))
 
 		secretGroup.POST("/password", AddPassword(service))
