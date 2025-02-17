@@ -4,7 +4,7 @@ github.com/novoseltcev/passkeeper/cmd/server/main.go:16:					init			0.0%
 github.com/novoseltcev/passkeeper/cmd/server/main.go:30:					main			0.0%
 github.com/novoseltcev/passkeeper/internal/app/app.go:39:					New			0.0%
 github.com/novoseltcev/passkeeper/internal/app/app.go:57:					Run			0.0%
-github.com/novoseltcev/passkeeper/internal/app/app.go:103:					getRootHandler		0.0%
+github.com/novoseltcev/passkeeper/internal/app/app.go:109:					getRootHandler		0.0%
 github.com/novoseltcev/passkeeper/internal/app/auth/utils.go:13:				GetUserID		75.0%
 github.com/novoseltcev/passkeeper/internal/app/config.go:32:					LoadEnv			0.0%
 github.com/novoseltcev/passkeeper/internal/controllers/http/common/response/base.go:9:		NewSuccess		100.0%

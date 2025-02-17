@@ -1,6 +1,9 @@
 package httpserver
 
-import "time"
+import (
+	"crypto/tls"
+	"time"
+)
 
 type Option func(*Server)
 
@@ -15,5 +18,12 @@ func WithAddr(addr string) Option {
 func WithReadTimeout(timeout time.Duration) Option {
 	return func(s *Server) {
 		s.server.ReadTimeout = timeout
+	}
+}
+
+// WithTLS sets TLS configuration for server.
+func WithTLS(cfg *tls.Config) Option {
+	return func(s *Server) {
+		s.server.TLSConfig = cfg
 	}
 }
