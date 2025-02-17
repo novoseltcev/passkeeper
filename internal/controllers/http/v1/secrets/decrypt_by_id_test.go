@@ -17,10 +17,11 @@ import (
 )
 
 const (
-	testOwnerID = models.UserID("f535204f-9283-4c1a-8e68-8834c6ae83fb")
-	testID      = models.SecretID("c4865c2f-8fa8-46a1-97b1-74242c68bbd0")
-	testHex     = "74657374"
-	testName    = "test"
+	testOwnerID     = models.UserID("f535204f-9283-4c1a-8e68-8834c6ae83fb")
+	testID          = models.SecretID("c4865c2f-8fa8-46a1-97b1-74242c68bbd0")
+	testHex         = "74657374"
+	testName        = "test"
+	testDecodedData = `{"key":"value"}`
 )
 
 var testData = []byte(testName)
@@ -44,7 +45,7 @@ func TestDecryptByID_Success(t *testing.T) {
 		Return(&models.Secret{
 			ID:   testID,
 			Name: testName,
-			Data: testData,
+			Data: []byte(testDecodedData),
 			Type: models.SecretTypeFile,
 		}, nil)
 
@@ -61,9 +62,9 @@ func TestDecryptByID_Success(t *testing.T) {
 		 	"id":"%s",
 		 	"name":"%s",
 		 	"type":"file",
-		 	"data":"%s"
+		 	"data":%s
 		  }
-		}`, testID, testName, testName).
+		}`, testID, testName, testDecodedData).
 		End()
 }
 
@@ -137,6 +138,11 @@ func TestGet_Fails_Get(t *testing.T) {
 			name:   "not mine",
 			err:    domain.ErrAnotherOwner,
 			status: http.StatusForbidden,
+		},
+		{
+			name:   "invalid passphrase",
+			err:    domain.ErrInvalidPassphrase,
+			status: http.StatusConflict,
 		},
 		{
 			name:   "other",

@@ -20,7 +20,7 @@ github.com/novoseltcev/passkeeper/internal/controllers/http/v1/secrets/add.go:49
 github.com/novoseltcev/passkeeper/internal/controllers/http/v1/secrets/add.go:61:		AddCard			100.0%
 github.com/novoseltcev/passkeeper/internal/controllers/http/v1/secrets/add.go:75:		AddText			100.0%
 github.com/novoseltcev/passkeeper/internal/controllers/http/v1/secrets/add.go:86:		AddFile			100.0%
-github.com/novoseltcev/passkeeper/internal/controllers/http/v1/secrets/decrypt_by_id.go:16:	DecryptByID		100.0%
+github.com/novoseltcev/passkeeper/internal/controllers/http/v1/secrets/decrypt_by_id.go:17:	DecryptByID		92.3%
 github.com/novoseltcev/passkeeper/internal/controllers/http/v1/secrets/delete.go:14:		Delete			100.0%
 github.com/novoseltcev/passkeeper/internal/controllers/http/v1/secrets/get_page.go:15:		GetPage			100.0%
 github.com/novoseltcev/passkeeper/internal/controllers/http/v1/secrets/routes.go:9:		AddRoutes		100.0%
@@ -44,13 +44,13 @@ github.com/novoseltcev/passkeeper/internal/domains/secrets/data.go:65:				Secret
 github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:16:			NewPage			0.0%
 github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:95:			NewService		100.0%
 github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:103:			Get			100.0%
-github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:118:			GetPage			100.0%
-github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:124:			Create			100.0%
-github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:140:			Update			100.0%
-github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:170:			Delete			100.0%
-github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:179:			getMySecret		100.0%
-github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:196:			checkPassphrase		100.0%
-github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:209:			loadAndCheckOwner	100.0%
+github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:122:			GetPage			100.0%
+github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:128:			Create			100.0%
+github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:144:			Update			100.0%
+github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:174:			Delete			100.0%
+github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:183:			getMySecret		100.0%
+github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:200:			checkPassphrase		100.0%
+github.com/novoseltcev/passkeeper/internal/domains/secrets/service.go:213:			loadAndCheckOwner	100.0%
 github.com/novoseltcev/passkeeper/internal/domains/user/service.go:46:				NewService		100.0%
 github.com/novoseltcev/passkeeper/internal/domains/user/service.go:50:				Login			100.0%
 github.com/novoseltcev/passkeeper/internal/domains/user/service.go:72:				Register		100.0%
@@ -100,4 +100,4 @@ github.com/novoseltcev/passkeeper/pkg/pwdhash/bcrypt.go:15:					NewBCrypt		100.0
 github.com/novoseltcev/passkeeper/pkg/pwdhash/bcrypt.go:22:					Generate		100.0%
 github.com/novoseltcev/passkeeper/pkg/pwdhash/bcrypt.go:32:					Compare			100.0%
 github.com/novoseltcev/passkeeper/pkg/testutils/helpers/pg.go:24:				SetupDB			100.0%
-total:												(statements)		83.6%
+total:												(statements)		83.5%

@@ -108,6 +108,10 @@ func (s *service) Get(
 		return nil, err
 	}
 
+	if err := s.checkPassphrase(secret.Owner, passphrase); err != nil {
+		return nil, err
+	}
+
 	if secret.Data, err = s.enc.Decrypt([]byte(passphrase), secret.Data); err != nil {
 		return nil, err
 	}

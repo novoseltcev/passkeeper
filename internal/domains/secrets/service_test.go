@@ -30,13 +30,18 @@ func TestService_Get_Success(t *testing.T) {
 	t.Cleanup(ctrl.Finish)
 
 	repo := mocks.NewMockRepository(ctrl)
+	hasher := mocks.NewMockHasher(ctrl)
 	enc := mocks.NewMockEncryptor(ctrl)
-	service := secrets.NewService(repo, nil, enc)
+	service := secrets.NewService(repo, hasher, enc)
 
-	got := &models.Secret{Data: testContent, Owner: &models.User{ID: testOwnerID}}
+	got := &models.Secret{Data: testContent, Owner: &models.User{ID: testOwnerID, PassphraseHash: testHash}}
 	repo.EXPECT().
 		Get(gomock.Any(), testID).
 		Return(got, nil)
+
+	hasher.EXPECT().
+		Compare(testHash, testPassphrase).
+		Return(true, nil)
 
 	enc.EXPECT().
 		Decrypt([]byte(testPassphrase), got.Data).
@@ -46,7 +51,7 @@ func TestService_Get_Success(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, &models.Secret{
 		Data:  []byte(testutils.STRING),
-		Owner: &models.User{ID: testOwnerID},
+		Owner: &models.User{ID: testOwnerID, PassphraseHash: testHash},
 	}, secret)
 }
 
@@ -101,19 +106,66 @@ func TestService_Get_Fails_AnotherOwner(t *testing.T) {
 	assert.ErrorIs(t, err, secrets.ErrAnotherOwner)
 }
 
+func TestService_Get_Fails_CompareErr(t *testing.T) {
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+
+	repo := mocks.NewMockRepository(ctrl)
+	hasher := mocks.NewMockHasher(ctrl)
+	service := secrets.NewService(repo, hasher, nil)
+
+	repo.EXPECT().
+		Get(gomock.Any(), testID).
+		Return(&models.Secret{Owner: &models.User{ID: testOwnerID, PassphraseHash: testHash}}, nil)
+
+	hasher.EXPECT().
+		Compare(testHash, testPassphrase).
+		Return(false, testutils.Err)
+
+	_, err := service.Get(context.Background(), testID, testOwnerID, testPassphrase)
+	assert.ErrorIs(t, err, testutils.Err)
+}
+
+func TestService_Get_Fails_CompareFail(t *testing.T) {
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	t.Cleanup(ctrl.Finish)
+
+	repo := mocks.NewMockRepository(ctrl)
+	hasher := mocks.NewMockHasher(ctrl)
+	service := secrets.NewService(repo, hasher, nil)
+
+	repo.EXPECT().
+		Get(gomock.Any(), testID).
+		Return(&models.Secret{Owner: &models.User{ID: testOwnerID, PassphraseHash: testHash}}, nil)
+
+	hasher.EXPECT().
+		Compare(testHash, testPassphrase).
+		Return(false, nil)
+
+	_, err := service.Get(context.Background(), testID, testOwnerID, testPassphrase)
+	assert.ErrorIs(t, err, secrets.ErrInvalidPassphrase)
+}
+
 func TestService_Get_Fails_Decrypt(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
 	repo := mocks.NewMockRepository(ctrl)
+	hasher := mocks.NewMockHasher(ctrl)
 	enc := mocks.NewMockEncryptor(ctrl)
-	service := secrets.NewService(repo, nil, enc)
+	service := secrets.NewService(repo, hasher, enc)
 
-	got := &models.Secret{Data: testContent, Owner: &models.User{ID: testOwnerID}}
+	got := &models.Secret{Data: testContent, Owner: &models.User{ID: testOwnerID, PassphraseHash: testHash}}
 	repo.EXPECT().
 		Get(gomock.Any(), testID).
 		Return(got, nil)
+
+	hasher.EXPECT().
+		Compare(testHash, testPassphrase).
+		Return(true, nil)
 
 	enc.EXPECT().
 		Decrypt([]byte(testPassphrase), got.Data).

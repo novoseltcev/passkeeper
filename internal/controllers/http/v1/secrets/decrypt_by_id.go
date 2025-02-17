@@ -1,6 +1,7 @@
 package secrets
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -40,9 +41,18 @@ func DecryptByID(service domain.Service) func(c *gin.Context) {
 				c.AbortWithStatus(http.StatusNotFound)
 			} else if errors.Is(err, domain.ErrAnotherOwner) {
 				c.AbortWithStatus(http.StatusForbidden)
+			} else if errors.Is(err, domain.ErrInvalidPassphrase) {
+				c.AbortWithStatus(http.StatusConflict)
 			} else {
 				c.AbortWithError(http.StatusInternalServerError, err)
 			}
+
+			return
+		}
+
+		var data map[string]any
+		if err := json.Unmarshal(secret.Data, &data); err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
 
 			return
 		}
@@ -51,14 +61,14 @@ func DecryptByID(service domain.Service) func(c *gin.Context) {
 			ID:   string(secret.ID),
 			Name: secret.Name,
 			Type: secret.Type.String(),
-			Data: string(secret.Data),
+			Data: data,
 		}))
 	}
 }
 
 type responseSecret struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	Type string `json:"type"`
-	Data string `json:"data"`
+	ID   string         `json:"id"`
+	Name string         `json:"name"`
+	Type string         `json:"type"`
+	Data map[string]any `json:"data"`
 }

@@ -64,7 +64,13 @@ func (a *App) Run(ctx context.Context) {
 		return
 	}
 
-	srv := httpserver.New(rootHandler, httpserver.WithAddr(a.cfg.Address))
+	// certMngr := autocert.Manager{
+	// 	Prompt:     autocert.AcceptTOS,
+	// 	Cache:      autocert.DirCache("cache-dir"),
+	// 	HostPolicy: autocert.HostWhitelist("gophkeeper.ru"),
+	// }
+
+	srv := httpserver.New(rootHandler, httpserver.WithAddr(a.cfg.Address)) //, httpserver.WithTLS(certMngr.TLSConfig()))
 	go srv.Run()
 
 	a.log.Info("Server started")
