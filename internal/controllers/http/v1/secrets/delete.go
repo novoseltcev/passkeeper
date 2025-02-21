@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/novoseltcev/passkeeper/internal/app/auth"
+	"github.com/novoseltcev/passkeeper/internal/auth"
 	domain "github.com/novoseltcev/passkeeper/internal/domains/secrets"
 	"github.com/novoseltcev/passkeeper/internal/models"
 )

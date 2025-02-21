@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	"github.com/novoseltcev/passkeeper/internal/app/auth"
+	"github.com/novoseltcev/passkeeper/internal/auth"
 	"github.com/novoseltcev/passkeeper/internal/controllers/http/common/response"
 	"github.com/novoseltcev/passkeeper/internal/controllers/http/v1/user"
 	domain "github.com/novoseltcev/passkeeper/internal/domains/user"

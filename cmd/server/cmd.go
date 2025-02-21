@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/pflag"
 	"go.uber.org/zap"
 
-	"github.com/novoseltcev/passkeeper/internal/app"
+	"github.com/novoseltcev/passkeeper/internal/app/server"
 	"github.com/novoseltcev/passkeeper/internal/domains/secrets"
 	"github.com/novoseltcev/passkeeper/internal/domains/user"
 	"github.com/novoseltcev/passkeeper/internal/repo"
@@ -20,7 +20,7 @@ import (
 )
 
 func Cmd() *cobra.Command {
-	cfg := &app.Config{}
+	cfg := &server.Config{}
 
 	cmd := &cobra.Command{
 		Use:   "server",
@@ -54,7 +54,7 @@ func Cmd() *cobra.Command {
 
 			hasher := pwdhash.NewBCrypt(cfg.Bcrypt.Cost)
 
-			app := app.New(
+			app := server.New(
 				cfg, logger, db,
 				repo.NewTokenRepository(db),
 				secrets.NewService(repo.NewSecretRepository(db), hasher, aes.New(aes.AES256BitKeyLength)),
@@ -73,7 +73,7 @@ func Cmd() *cobra.Command {
 }
 
 // initFlags initializes flags for parsing and help command.
-func initFlags(cfg *app.Config, flags *pflag.FlagSet) {
-	flags.StringVarP(&cfg.Address, "address", "a", ":8080", "Server address")
+func initFlags(cfg *server.Config, flags *pflag.FlagSet) {
+	flags.StringVarP(&cfg.Address, "address", "a", ":8080", "Address to listen on")
 	flags.StringVarP(&cfg.Level, "level", "l", "info", "Log level")
 }
