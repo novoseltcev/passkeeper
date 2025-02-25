@@ -39,7 +39,7 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 
 				_, err := api.Add(context.TODO(), state["token"], data)
 				if err != nil {
-					panic(err)
+					panic(err) // TODO@novoseltcev: handle error
 				}
 
 				pages.SwitchToPage(utils.PageList)
@@ -60,7 +60,7 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 
 				_, err := api.Add(context.TODO(), state["token"], data)
 				if err != nil {
-					panic(err)
+					panic(err) // TODO@novoseltcev: handle error
 				}
 
 				pages.SwitchToPage(utils.PageList)
@@ -78,7 +78,7 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 
 				_, err := api.Add(context.TODO(), state["token"], data)
 				if err != nil {
-					panic(err)
+					panic(err) // TODO@novoseltcev: handle error
 				}
 
 				pages.SwitchToPage(utils.PageList)
@@ -97,7 +97,7 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 
 				_, err := api.Add(context.TODO(), state["token"], data)
 				if err != nil {
-					panic(err)
+					panic(err) // TODO@novoseltcev: handle error
 				}
 
 				pages.SwitchToPage(utils.PageList)
