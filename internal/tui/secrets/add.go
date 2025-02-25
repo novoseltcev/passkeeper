@@ -1,3 +1,4 @@
+// nolint: mnd
 package secrets
 
 import (
@@ -21,7 +22,6 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 
 	form.SetBorder(true).SetTitle("Add secret")
 
-	// nameFld := utils.Must[*tview.InputField](form.GetFormItem(0))
 	typeFld := utils.Must[*tview.DropDown](form.GetFormItem(1))
 
 	typeFld.SetSelectedFunc(func(text string, index int) {
@@ -29,7 +29,7 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 		case "password":
 			data := &secrets.PasswordSecretData{Meta: make(map[string]any)}
 
-			clearNewFields(form)
+			clearNewFields(form, 2)
 			form.AddInputField("Login", "", 0, nil, func(text string) { data.Login = text })
 			form.AddInputField("Password", "", 0, nil, func(text string) { data.Password = text })
 			form.AddTextArea("Meta", "", 0, 0, 256, func(text string) { data.Meta["k"] = text }) // nolint: mnd
@@ -43,12 +43,12 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 				}
 
 				pages.SwitchToPage(utils.PageList)
-				clearNewFields(form)
+				clearNewFields(form, 2)
 			})
 		case "card":
 			data := &secrets.CardSecretData{Meta: make(map[string]any)}
 
-			clearNewFields(form)
+			clearNewFields(form, 2)
 			form.AddInputField("Number", "", 0, nil, func(text string) { data.Number = text })
 			form.AddInputField("Holder", "", 0, nil, func(text string) { data.Holder = text })
 			form.AddInputField("CVV", "", 0, nil, func(text string) { data.CVV = text })
@@ -64,12 +64,12 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 				}
 
 				pages.SwitchToPage(utils.PageList)
-				clearNewFields(form)
+				clearNewFields(form, 2)
 			})
 		case "text":
 			data := &secrets.TextSecretData{Meta: make(map[string]any)}
 
-			clearNewFields(form)
+			clearNewFields(form, 2)
 			form.AddInputField("Content", "", 0, nil, func(text string) { data.Content = text })
 			form.AddTextArea("Meta", "", 0, 0, 256, func(text string) { data.Meta["k"] = text }) // nolint: mnd
 			form.AddButton("Add", func() {
@@ -82,12 +82,12 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 				}
 
 				pages.SwitchToPage(utils.PageList)
-				clearNewFields(form)
+				clearNewFields(form, 2)
 			})
 		case "file":
 			data := &secrets.FileSecretData{Meta: make(map[string]any)}
 
-			clearNewFields(form)
+			clearNewFields(form, 2)
 			form.AddInputField("Filename", "", 0, nil, func(text string) { data.Filename = text })
 			form.AddInputField("Content", "", 0, nil, func(text string) { data.Content = text })
 			form.AddTextArea("Meta", "", 0, 0, 256, func(text string) { data.Meta["k"] = text }) // nolint: mnd
@@ -101,7 +101,7 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 				}
 
 				pages.SwitchToPage(utils.PageList)
-				clearNewFields(form)
+				clearNewFields(form, 2)
 			})
 		}
 	})
@@ -109,9 +109,9 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 	return form
 }
 
-func clearNewFields(form *tview.Form) {
-	for range form.GetFormItemCount() - 2 {
-		form.RemoveFormItem(2) // nolint: mnd
+func clearNewFields(form *tview.Form, index int) {
+	for range form.GetFormItemCount() - index {
+		form.RemoveFormItem(index) // nolint: mnd
 	}
 
 	form.ClearButtons()

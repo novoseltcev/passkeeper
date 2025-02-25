@@ -71,7 +71,7 @@ func send(
 
 	for _, item := range items {
 		list.AddItem(
-			item.Name+" ["+item.Type+"]",
+			item.Name+" <"+item.Type+">",
 			item.ID,
 			rune(list.GetItemCount()+1),
 			func() {

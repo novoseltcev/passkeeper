@@ -16,6 +16,7 @@ func NewLayout(api adapters.API) *tview.Pages {
 	pages.AddPage(utils.PageSignUp, auth.NewSignUpForm(pages, state, api), true, false)
 	pages.AddPage(utils.PagePassphrase, auth.NewPassphraseForm(pages, state, api), true, false)
 	pages.AddPage(utils.PageList, secrets.NewListView(pages, state, api), true, false)
+	pages.AddPage(utils.PageCard, secrets.NewCardView(pages, state, api), true, false)
 	pages.AddPage(utils.PageAdd, secrets.NewAddView(pages, state, api), true, false)
 
 	isAuth := state["token"] != ""
