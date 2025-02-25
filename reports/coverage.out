@@ -21,7 +21,7 @@ github.com/novoseltcev/passkeeper/internal/app/client/app.go:24:				Run			0.0%
 github.com/novoseltcev/passkeeper/internal/app/client/config.go:11:				LoadEnv			0.0%
 github.com/novoseltcev/passkeeper/internal/app/server/app.go:41:				New			0.0%
 github.com/novoseltcev/passkeeper/internal/app/server/app.go:59:				Run			0.0%
-github.com/novoseltcev/passkeeper/internal/app/server/app.go:111:				getRootHandler		0.0%
+github.com/novoseltcev/passkeeper/internal/app/server/app.go:106:				getRootHandler		0.0%
 github.com/novoseltcev/passkeeper/internal/app/server/config.go:32:				LoadEnv			0.0%
 github.com/novoseltcev/passkeeper/internal/auth/utils.go:13:					GetUserID		75.0%
 github.com/novoseltcev/passkeeper/internal/controllers/http/common/response/base.go:9:		NewSuccess		100.0%
@@ -92,8 +92,9 @@ github.com/novoseltcev/passkeeper/internal/tui/auth/passphrase.go:13:				NewPass
 github.com/novoseltcev/passkeeper/internal/tui/auth/signin.go:14:				NewSignInForm		0.0%
 github.com/novoseltcev/passkeeper/internal/tui/auth/signup.go:13:				NewSignUpForm		0.0%
 github.com/novoseltcev/passkeeper/internal/tui/root.go:12:					NewLayout		0.0%
-github.com/novoseltcev/passkeeper/internal/tui/secrets/add.go:13:				NewAddView		0.0%
+github.com/novoseltcev/passkeeper/internal/tui/secrets/add.go:14:				NewAddView		0.0%
 github.com/novoseltcev/passkeeper/internal/tui/secrets/add.go:112:				clearNewFields		0.0%
+github.com/novoseltcev/passkeeper/internal/tui/secrets/card.go:17:				NewCardView		0.0%
 github.com/novoseltcev/passkeeper/internal/tui/secrets/list.go:15:				NewListView		0.0%
 github.com/novoseltcev/passkeeper/internal/tui/secrets/list.go:55:				send			0.0%
 github.com/novoseltcev/passkeeper/internal/tui/utils/must.go:9:					Must			0.0%
@@ -122,4 +123,4 @@ github.com/novoseltcev/passkeeper/pkg/pwdhash/bcrypt.go:15:					NewBCrypt		100.0
 github.com/novoseltcev/passkeeper/pkg/pwdhash/bcrypt.go:22:					Generate		100.0%
 github.com/novoseltcev/passkeeper/pkg/pwdhash/bcrypt.go:32:					Compare			100.0%
 github.com/novoseltcev/passkeeper/pkg/testutils/helpers/pg.go:24:				SetupDB			100.0%
-total:												(statements)		49.3%
+total:												(statements)		47.7%

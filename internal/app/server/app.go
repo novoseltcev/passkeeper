@@ -13,7 +13,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
-	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/novoseltcev/passkeeper/internal/auth"
@@ -67,12 +66,7 @@ func (a *App) Run(ctx context.Context) {
 		return
 	}
 
-	certMngr := autocert.Manager{
-		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist("gophkeeper.ru", "localhost"), // TODO: load cert from config
-	}
-
-	srv := httpserver.New(rootHandler, httpserver.WithAddr(a.cfg.Address), httpserver.WithTLS(certMngr.TLSConfig()))
+	srv := httpserver.New(rootHandler, httpserver.WithAddr(a.cfg.Address))
 	go srv.Run()
 
 	a.log.Info("Server started")
