@@ -35,9 +35,9 @@ func GetPage(service domain.Service) func(c *gin.Context) {
 			return
 		}
 
-		schemas := make([]SecretSchema, len(page.Items))
+		schemas := make([]SecretItemSchema, len(page.Items))
 		for i, secret := range page.Items {
-			schemas[i] = SecretSchema{
+			schemas[i] = SecretItemSchema{
 				ID:   string(secret.ID),
 				Name: secret.Name,
 				Type: secret.Type.String(),
@@ -53,7 +53,7 @@ type PaginationRequest struct {
 	Offset uint64 `binding:"gte=0"                  form:"offset"`
 }
 
-type SecretSchema struct {
+type SecretItemSchema struct {
 	ID   string `binding:"required"                               json:"id"`
 	Name string `binding:"required"                               json:"name"`
 	Type string `binding:"required,oneof=password card text file" json:"type"`

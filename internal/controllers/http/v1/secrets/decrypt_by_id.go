@@ -14,16 +14,16 @@ import (
 	"github.com/novoseltcev/passkeeper/internal/models"
 )
 
-func DecryptByID(service domain.Service) func(c *gin.Context) {
-	type reqBody struct {
-		Passphrase string `binding:"required"`
-	}
+type DecryptByIDData struct {
+	Passphrase string `binding:"required"`
+}
 
+func DecryptByID(service domain.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		ownerID := auth.GetUserID(c)
 		id := models.SecretID(c.Param("id"))
 
-		var body reqBody
+		var body DecryptByIDData
 		if err := c.ShouldBindJSON(&body); err != nil {
 			var vErr validator.ValidationErrors
 			if errors.As(err, &vErr) {
@@ -57,7 +57,7 @@ func DecryptByID(service domain.Service) func(c *gin.Context) {
 			return
 		}
 
-		c.JSON(http.StatusOK, response.NewSuccess(&responseSecret{
+		c.JSON(http.StatusOK, response.NewSuccess(&SecretSchema{
 			ID:   string(secret.ID),
 			Name: secret.Name,
 			Type: secret.Type.String(),
@@ -66,7 +66,7 @@ func DecryptByID(service domain.Service) func(c *gin.Context) {
 	}
 }
 
-type responseSecret struct {
+type SecretSchema struct {
 	ID   string         `json:"id"`
 	Name string         `json:"name"`
 	Type string         `json:"type"`

@@ -10,6 +10,7 @@ type PaginatedResponse[T any] struct {
 	Success    bool       `json:"success"`
 	Result     []T        `json:"result"`
 	Pagination pagination `json:"pagination"`
+	Errors     []string   `json:"errors,omitempty"`
 }
 
 func NewPaginated[T any](result []T, limit, offset, total uint64) *PaginatedResponse[T] {

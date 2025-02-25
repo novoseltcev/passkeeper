@@ -12,15 +12,15 @@ import (
 	domain "github.com/novoseltcev/passkeeper/internal/domains/user"
 )
 
-func Verify(service domain.Service) gin.HandlerFunc {
-	type reqBody struct {
-		Passphrase string `binding:"required"`
-	}
+type VerifyData struct {
+	Passphrase string `binding:"required"`
+}
 
+func Verify(service domain.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ownerID := auth.GetUserID(c)
 
-		var body reqBody
+		var body VerifyData
 		if err := c.ShouldBindJSON(&body); err != nil {
 			var vErr validator.ValidationErrors
 			if errors.As(err, &vErr) {

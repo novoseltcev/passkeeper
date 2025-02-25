@@ -12,14 +12,14 @@ import (
 	"github.com/novoseltcev/passkeeper/pkg/jwtmanager"
 )
 
-func Login(service domain.Service, jwt jwtmanager.Manager) gin.HandlerFunc {
-	type reqBody struct {
-		Login    string `binding:"required,email"`
-		Password string `binding:"required"`
-	}
+type LoginData struct {
+	Login    string `binding:"required,email"`
+	Password string `binding:"required"`
+}
 
+func Login(service domain.Service, jwt jwtmanager.Manager) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var body reqBody
+		var body LoginData
 		if err := c.ShouldBindJSON(&body); err != nil {
 			var vErr validator.ValidationErrors
 			if errors.As(err, &vErr) {
@@ -49,12 +49,10 @@ func Login(service domain.Service, jwt jwtmanager.Manager) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, response.NewSuccess(&responseData{
-			Token: token,
-		}))
+		c.JSON(http.StatusOK, response.NewSuccess(&LoginBody{Token: token}))
 	}
 }
 
-type responseData struct {
+type LoginBody struct {
 	Token string `json:"token"`
 }
