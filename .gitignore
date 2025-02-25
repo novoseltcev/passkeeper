@@ -9,8 +9,10 @@
 *.dylib
 
 # Binaries
-cmd/cli/cli*
-cmd/server/server
+cmd/client/*
+!cmd/client/*.go
+cmd/server/*
+!cmd/server/*.go
 
 # Test binary, built with `go test -c`
 *.test

@@ -9,14 +9,25 @@ generate:
 	go generate ./...
 
 SERVER_DIR=./cmd/server
+SERVER_EXEC=$(SERVER_DIR)/server
 build-server: generate $(SERVER_DIR)/main.go
-	go build -buildvcs=false -ldflags "-X main.buildVersion=`git describe --tags 2> /dev/null` -X main.buildDate=`date -u +%Y-%m-%d` -X main.buildCommit=`git rev-parse HEAD`" -o $(SERVER_DIR)/server $(SERVER_DIR) 
+	go build -buildvcs=false -ldflags "-X main.buildVersion=`git describe --tags 2> /dev/null` -X main.buildDate=`date -u +%Y-%m-%d` -X main.buildCommit=`git rev-parse HEAD`" -o $(SERVER_EXEC) $(SERVER_DIR)
 
-build: build-server
+CLIENT_DIR=./cmd/client
+CLIENT_EXEC=$(CLIENT_DIR)/client
+build-client: generate $(CLIENT_DIR)/main.go
+	go build -buildvcs=false -ldflags "-X main.buildVersion=`git describe --tags 2> /dev/null` -X main.buildDate=`date -u +%Y-%m-%d` -X main.buildCommit=`git rev-parse HEAD`" -o $(CLIENT_EXEC) $(CLIENT_DIR)
+
+
+build: build-server build-client
 
 .PHONY: server
-server: $(SERVER_DIR)/server
-	DB_DSN=$(DATABASE_DSN) JWT_SECRET="secret" $(SERVER_DIR)/server -l debug
+server: $(SERVER_EXEC)
+	DB_DSN=$(DATABASE_DSN) JWT_SECRET="secret" $(SERVER_EXEC) -l debug
+
+.PHONY: server
+client: $(CLIENT_EXEC)
+	$(CLIENT_EXEC) -l debug
 
 # make new-migration NAME=init_tables
 new-migration:
