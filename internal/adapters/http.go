@@ -171,7 +171,7 @@ func (a *HTTP) Add(ctx context.Context, token string, data any) (string, error) 
 		return "", err
 	}
 
-	var schema response.Response[secrets.SecretSchema]
+	var schema response.Response[response.CreatedData[string]]
 	if err := json.Unmarshal(body, &schema); err != nil {
 		return "", err
 	}
@@ -216,18 +216,20 @@ func (a *HTTP) Update(ctx context.Context, token string, uuid string, data any) 
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	body, err := a.doRequest(req, []int{http.StatusCreated})
+	body, err := a.doRequest(req, []int{http.StatusNoContent})
 	if err != nil {
 		return err
 	}
 
-	var schema response.Response[secrets.SecretSchema]
-	if err := json.Unmarshal(body, &schema); err != nil {
-		return err
-	}
+	if len(body) > 0 {
+		var schema response.Response[any]
+		if err := json.Unmarshal(body, &schema); err != nil {
+			return err
+		}
 
-	if !schema.Success {
-		return fmt.Errorf("failed to update secret: %s", schema.Errors)
+		if !schema.Success {
+			return fmt.Errorf("failed to update secret: %s", schema.Errors)
+		}
 	}
 
 	return nil
