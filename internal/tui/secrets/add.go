@@ -26,7 +26,7 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 
 	typeFld.SetSelectedFunc(func(text string, index int) {
 		switch text {
-		case "password":
+		case "password": // nolint: dupl
 			data := &secrets.PasswordSecretData{Meta: make(map[string]any)}
 
 			clearNewFields(form, 2)
@@ -35,9 +35,9 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 			form.AddTextArea("Meta", "", 0, 0, 256, func(text string) { data.Meta["k"] = text }) // nolint: mnd
 			form.AddButton("Add", func() {
 				data.Name = name
-				data.Passphrase = state["passphrase"]
+				data.Passphrase = state[utils.StatePassphrase]
 
-				_, err := api.Add(context.TODO(), state["token"], data)
+				_, err := api.Add(context.TODO(), state[utils.StateToken], data)
 				if err != nil {
 					panic(err) // TODO@novoseltcev: handle error
 				}
@@ -45,7 +45,7 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 				pages.SwitchToPage(utils.PageList)
 				clearNewFields(form, 2)
 			})
-		case "card":
+		case "card": // nolint: dupl
 			data := &secrets.CardSecretData{Meta: make(map[string]any)}
 
 			clearNewFields(form, 2)
@@ -56,9 +56,9 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 			form.AddTextArea("Meta", "", 0, 0, 256, func(text string) { data.Meta["k"] = text }) // nolint: mnd
 			form.AddButton("Add", func() {
 				data.Name = name
-				data.Passphrase = state["passphrase"]
+				data.Passphrase = state[utils.StatePassphrase]
 
-				_, err := api.Add(context.TODO(), state["token"], data)
+				_, err := api.Add(context.TODO(), state[utils.StateToken], data)
 				if err != nil {
 					panic(err) // TODO@novoseltcev: handle error
 				}
@@ -74,9 +74,9 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 			form.AddTextArea("Meta", "", 0, 0, 256, func(text string) { data.Meta["k"] = text }) // nolint: mnd
 			form.AddButton("Add", func() {
 				data.Name = name
-				data.Passphrase = state["passphrase"]
+				data.Passphrase = state[utils.StatePassphrase]
 
-				_, err := api.Add(context.TODO(), state["token"], data)
+				_, err := api.Add(context.TODO(), state[utils.StateToken], data)
 				if err != nil {
 					panic(err) // TODO@novoseltcev: handle error
 				}
@@ -84,7 +84,7 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 				pages.SwitchToPage(utils.PageList)
 				clearNewFields(form, 2)
 			})
-		case "file":
+		case "file": // nolint: dupl
 			data := &secrets.FileSecretData{Meta: make(map[string]any)}
 
 			clearNewFields(form, 2)
@@ -93,9 +93,9 @@ func NewAddView(pages *tview.Pages, state map[string]string, api adapters.API) *
 			form.AddTextArea("Meta", "", 0, 0, 256, func(text string) { data.Meta["k"] = text }) // nolint: mnd
 			form.AddButton("Add", func() {
 				data.Name = name
-				data.Passphrase = state["passphrase"]
+				data.Passphrase = state[utils.StatePassphrase]
 
-				_, err := api.Add(context.TODO(), state["token"], data)
+				_, err := api.Add(context.TODO(), state[utils.StateToken], data)
 				if err != nil {
 					panic(err) // TODO@novoseltcev: handle error
 				}

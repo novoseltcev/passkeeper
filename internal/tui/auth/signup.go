@@ -51,8 +51,8 @@ func NewSignUpForm(pages *tview.Pages, state map[string]string, api adapters.API
 			return
 		}
 
-		state["token"] = token
-		state["passphrase"] = data.Passphrase
+		state[utils.StateToken] = token
+		state[utils.StatePassphrase] = data.Passphrase
 
 		pages.SwitchToPage(utils.PageList)
 	})

@@ -39,7 +39,7 @@ func NewListView(pages *tview.Pages, state map[string]string, api adapters.API) 
 			index := list.GetCurrentItem()
 			_, uuid := list.GetItemText(index)
 
-			if err := api.DeleteSecret(context.TODO(), state["token"], uuid); err != nil {
+			if err := api.DeleteSecret(context.TODO(), state[utils.StateToken], uuid); err != nil {
 				panic(err) // TODO@novoseltcev: handle error
 			}
 
@@ -62,7 +62,7 @@ func send(
 ) error {
 	items, total, err := api.GetSecretsPage(
 		ctx,
-		state["token"],
+		state[utils.StateToken],
 		&secrets.PaginationRequest{Limit: 50, Offset: offset}, // nolint: mnd
 	)
 	if err != nil {
@@ -75,14 +75,15 @@ func send(
 			item.ID,
 			rune(list.GetItemCount()+1),
 			func() {
-				state["uuid"] = item.ID
+				state[utils.StateID] = item.ID
 
 				pages.SwitchToPage(utils.PageCard)
 			},
 		)
 	}
 
-	state["total"] = fmt.Sprint(total)
+	state[utils.StateTotal] = fmt.Sprint(total)
+	state[utils.StateOffset] = fmt.Sprint(offset)
 
 	return nil
 }

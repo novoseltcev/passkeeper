@@ -24,7 +24,7 @@ func New(cfg *Config, log *zap.Logger, api adapters.API) *App {
 func (a *App) Run(ctx context.Context) {
 	a.log.Info("Application starting")
 
-	tApp := tview.NewApplication() //.EnableMouse(true).EnablePaste(true)
+	tApp := tview.NewApplication().EnableMouse(true).EnablePaste(true)
 	tApp.SetRoot(tui.NewLayout(a.api), true)
 	tApp.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		return event

@@ -45,7 +45,7 @@ func NewSignInForm(pages *tview.Pages, state map[string]string, api adapters.API
 			return
 		}
 
-		state["token"] = token
+		state[utils.StateToken] = token
 
 		pages.SwitchToPage(utils.PagePassphrase)
 	})

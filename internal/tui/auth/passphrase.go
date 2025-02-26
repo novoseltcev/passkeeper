@@ -15,11 +15,11 @@ func NewPassphraseForm(pages *tview.Pages, state map[string]string, api adapters
 	form := tview.NewForm().
 		AddInputField("Passphrase", "", 0, nil, func(text string) { data.Passphrase = text }).
 		AddButton("Verify", func() {
-			if err := api.Verify(context.TODO(), state["token"], data); err != nil {
+			if err := api.Verify(context.TODO(), state[utils.StateToken], data); err != nil {
 				panic(err) // TODO@novoseltcev: handle error
 			}
 
-			state["passphrase"] = data.Passphrase
+			state[utils.StatePassphrase] = data.Passphrase
 			pages.SwitchToPage(utils.PageList)
 		}).
 		SetCancelFunc(func() { pages.SwitchToPage(utils.PageSignIn) })
