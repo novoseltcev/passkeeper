@@ -166,7 +166,7 @@ var defaultUpdateData = map[models.SecretType]string{
 		"name":"test",
 		"number":"4111111111111111",
 		"holder":"John Doe",
-		"exp":"08/12/2025",
+		"exp":"12/25",
 		"cvv":"123",
 		"meta":{}
 	}`,

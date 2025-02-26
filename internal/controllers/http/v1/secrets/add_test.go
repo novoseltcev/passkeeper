@@ -26,7 +26,7 @@ var (
 	testMeta       = `{"key":"value"}`
 	testCard       = "4111111111111111"
 	testHolder     = "John Doe"
-	testExp        = "08/12/2025"
+	testExp        = "12/25"
 	testCVV        = "123"
 )
 
@@ -189,7 +189,7 @@ var defaultAddData = map[models.SecretType]string{
 		"name":"test",
 		"number":"4111111111111111",
 		"holder":"John Doe",
-		"exp":"08/12/2025",
+		"exp":"12/25",
 		"cvv":"123",
 		"meta":{}
 	}`,

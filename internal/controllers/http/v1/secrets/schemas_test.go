@@ -140,7 +140,7 @@ func TestValidation_CardSecretData_Fails(t *testing.T) {
 				Passphrase: " ",
 				Name:       "test",
 				Number:     "4111111111111111",
-				Exp:        "08/12/2025",
+				Exp:        "12/25",
 				Meta:       map[string]any{},
 			},
 			errs: []string{"Field validation for 'CVV' failed on the 'numeric' tag"},
