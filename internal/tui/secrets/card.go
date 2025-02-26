@@ -3,7 +3,9 @@ package secrets
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -13,127 +15,217 @@ import (
 	"github.com/novoseltcev/passkeeper/internal/tui/utils"
 )
 
-// Not working form (need to fix focus).
-func NewCardView(pages *tview.Pages, state map[string]string, api adapters.API) *tview.Form { // nolint: funlen
-	form := tview.NewForm().AddInputField("Name", "", 0, nil, nil)
-	nameFld := utils.Must[*tview.InputField](form.GetFormItem(0))
+func NewCardView(pages *tview.Pages, state map[string]string, api adapters.API) *tview.Flex { // nolint: funlen
+	var (
+		cancel context.CancelFunc
+		init   bool
+		form   *tview.Form
+	)
 
-	init := false
+	view := tview.NewFlex().SetDirection(tview.FlexRow)
+	view.SetBorder(true).SetTitle(("Card"))
 
-	form.SetBorder(true).
-		SetTitle("Loading... (press Esc to cancel)").
-		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-			if event.Key() == tcell.KeyEscape {
-				init = false
+	loader := tview.NewTextView()
+	view.AddItem(loader, 1, 1, false)
 
-				delete(state, "uuid")
-				pages.SwitchToPage(utils.PageList)
-				clearNewFields(form, 1)
-				form.SetTitle("Loading... (press Esc to cancel)")
-			}
+	view.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyEscape {
+			init = false
 
-			return event
-		})
+			cancel()
+			delete(state, utils.StateID)
+			pages.SwitchToPage(utils.PageList)
+			loader.Clear()
+			view.RemoveItem(form)
+		}
 
-	form.SetFocusFunc(func() {
+		return event
+	})
+
+	view.SetFocusFunc(func() {
 		if init {
 			return
 		}
 
-		uuid, ok := state["uuid"]
-		if !ok {
-			panic("uuid shold be set in state")
-		}
+		var ctx context.Context
+		ctx, cancel = context.WithTimeout(context.Background(), time.Second)
+		id, token, passphrase := state[utils.StateID], state[utils.StateToken], state[utils.StatePassphrase]
+
+		loader.SetText("Loading...")
 
 		secret, err := api.DecryptSecret(
-			context.TODO(),
-			state["token"],
-			uuid,
-			&secrets.DecryptByIDData{Passphrase: state["passphrase"]},
+			ctx,
+			state[utils.StateToken],
+			id,
+			&secrets.DecryptByIDData{Passphrase: state[utils.StatePassphrase]},
 		)
 		if err != nil {
 			panic(err) // TODO@novoseltcev: handle error
 		}
 
-		form.SetTitle(fmt.Sprintf("Card <%s> - %s", secret.Type, uuid))
+		init = true
+
+		loader.Clear()
+		view.SetTitle(fmt.Sprintf("Card <%s> - %s", secret.Type, id))
 
 		switch secret.Type {
-		case "password": // nolint: dupl
-			data := &secrets.PasswordSecretData{
-				Passphrase: state["passphrase"],
+		case "password":
+			form = NewUpdateForm(&secrets.PasswordSecretData{
+				Passphrase: passphrase,
 				Name:       secret.Name,
 				Login:      secret.Data["login"].(string),
 				Password:   secret.Data["password"].(string),
 				Meta:       secret.Data["meta"].(map[string]any),
-			}
-
-			nameFld.SetText(secret.Name).SetChangedFunc(func(text string) { data.Name = text })
-			form.AddInputField("Login", data.Login, 0, nil, func(text string) { data.Login = text }).
-				AddInputField("Password", data.Name, 0, nil, func(text string) { data.Password = text }).
-				AddTextArea("Meta", fmt.Sprint(data.Meta), 0, 0, 256, func(text string) {}). // nolint: mnd
-				AddButton("Save", func() {
-					if err := api.Update(context.TODO(), state["token"], secret.ID, data); err != nil {
-						panic(err) // TODO@novoseltcev: handle error
-					}
-				})
+			}, id, token, passphrase, api)
 		case "card":
-			data := &secrets.CardSecretData{
-				Passphrase: state["passphrase"],
+			form = NewUpdateForm(&secrets.CardSecretData{
+				Passphrase: passphrase,
 				Name:       secret.Name,
 				Number:     secret.Data["number"].(string),
 				Holder:     secret.Data["holder"].(string),
 				CVV:        secret.Data["cvv"].(string),
 				Exp:        secret.Data["exp"].(string),
 				Meta:       secret.Data["meta"].(map[string]any),
-			}
-
-			nameFld.SetText(secret.Name).SetChangedFunc(func(text string) { data.Name = text })
-			form.AddInputField("Number", data.Number, 0, nil, func(text string) { data.Number = text }).
-				AddInputField("Holder", data.Holder, 0, nil, func(text string) { data.Holder = text }).
-				AddInputField("CVV", data.CVV, 0, nil, func(text string) { data.CVV = text }).
-				AddInputField("Exp", data.Exp, 0, nil, func(text string) { data.Exp = text }).
-				AddTextArea("Meta", fmt.Sprint(data.Meta), 0, 0, 256, func(text string) {}). // nolint: mnd
-				AddButton("Save", func() {
-					if err := api.Update(context.TODO(), state["token"], secret.ID, data); err != nil {
-						panic(err) // TODO@novoseltcev: handle error
-					}
-				})
+			}, id, token, passphrase, api)
 		case "text":
-			data := &secrets.TextSecretData{
-				Passphrase: state["passphrase"],
+			form = NewUpdateForm(&secrets.TextSecretData{
+				Passphrase: passphrase,
 				Name:       secret.Name,
 				Content:    secret.Data["content"].(string),
 				Meta:       secret.Data["meta"].(map[string]any),
-			}
-
-			nameFld.SetText(secret.Name).SetChangedFunc(func(text string) { data.Name = text })
-			form.AddInputField("Content", data.Content, 0, nil, func(text string) { data.Content = text }).
-				AddTextArea("Meta", fmt.Sprint(data.Meta), 0, 0, 256, func(text string) {}). // nolint: mnd
-				AddButton("Save", func() {
-					if err := api.Update(context.TODO(), state["token"], secret.ID, data); err != nil {
-						panic(err) // TODO@novoseltcev: handle error
-					}
-				})
-		case "file": // nolint: dupl
-			data := &secrets.FileSecretData{
-				Passphrase: state["passphrase"],
+			}, id, token, passphrase, api)
+		case "file":
+			form = NewUpdateForm(&secrets.FileSecretData{
+				Passphrase: passphrase,
 				Name:       secret.Name,
 				Filename:   secret.Data["filename"].(string),
 				Content:    secret.Data["content"].(string),
 				Meta:       secret.Data["meta"].(map[string]any),
-			}
+			}, id, token, passphrase, api)
+		}
 
-			nameFld.SetText(secret.Name).SetChangedFunc(func(text string) { data.Name = text })
-			form.AddInputField("Filename", data.Filename, 0, nil, func(text string) { data.Filename = text }).
-				AddInputField("Content", data.Content, 0, nil, func(text string) { data.Content = text }).
-				AddTextArea("Meta", fmt.Sprint(data.Meta), 0, 0, 256, func(text string) {}). // nolint: mnd
-				AddButton("Save", func() {
-					if err := api.Update(context.TODO(), state["token"], secret.ID, data); err != nil {
-						panic(err) // TODO@novoseltcev: handle error
-					}
-				})
+		view.AddItem(form, 0, 10, false) // nolint: mnd
+	})
+
+	return view
+}
+
+func NewUpdateForm[ // nolint: funlen
+	T secrets.PasswordSecretData |
+		secrets.CardSecretData |
+		secrets.TextSecretData |
+		secrets.FileSecretData](
+	data *T,
+	id, token, passphrase string,
+	api adapters.API,
+) *tview.Form {
+	form := tview.NewForm().AddButton("Save", func() {
+		if err := api.Update(context.TODO(), token, id, data); err != nil {
+			panic(err) // TODO@novoseltcev: handle error
 		}
 	})
 
-	return form
+	btn := form.GetButton(0)
+	btn.SetDisabled(true)
+
+	switch data := any(data).(type) {
+	case *secrets.PasswordSecretData:
+		meta, err := json.Marshal(data.Meta)
+		if err != nil {
+			panic(err) // TODO@novoseltcev: handle error
+		}
+
+		return form.
+			AddInputField("Name", data.Name, 0, nil, func(text string) {
+				data.Name = text
+				btn.SetDisabled(false)
+			}).
+			AddInputField("Login", data.Login, 0, nil, func(text string) {
+				data.Login = text
+				btn.SetDisabled(true)
+			}).
+			AddInputField("Password", data.Password, 0, nil, func(text string) {
+				data.Password = text
+				btn.SetDisabled(false)
+			}).
+			AddTextArea("Meta", string(meta), 0, 0, 256, func(text string) { // nolint: mnd
+				btn.SetDisabled(false)
+				json.Unmarshal([]byte(text), &data.Meta)
+			})
+	case *secrets.CardSecretData:
+		meta, err := json.Marshal(data.Meta)
+		if err != nil {
+			panic(err) // TODO@novoseltcev: handle error
+		}
+
+		return form.
+			AddInputField("Name", data.Name, 0, nil, func(text string) {
+				data.Name = text
+				btn.SetDisabled(false)
+			}).
+			AddInputField("Number", data.Number, 0, nil, func(text string) {
+				data.Number = text
+				btn.SetDisabled(false)
+			}).
+			AddInputField("Holder", data.Holder, 0, nil, func(text string) {
+				data.Holder = text
+				btn.SetDisabled(false)
+			}).
+			AddInputField("CVV", data.CVV, 0, nil, func(text string) {
+				data.CVV = text
+				btn.SetDisabled(false)
+			}).
+			AddInputField("Exp", data.Exp, 0, nil, func(text string) {
+				data.Exp = text
+				btn.SetDisabled(false)
+			}).
+			AddTextArea("Meta", string(meta), 0, 0, 256, func(text string) { // nolint: mnd
+				btn.SetDisabled(false)
+				json.Unmarshal([]byte(text), &data.Meta)
+			})
+	case *secrets.TextSecretData:
+		meta, err := json.Marshal(data.Meta)
+		if err != nil {
+			panic(err) // TODO@novoseltcev: handle error
+		}
+
+		return form.
+			AddInputField("Name", data.Name, 0, nil, func(text string) {
+				data.Name = text
+				btn.SetDisabled(false)
+			}).
+			AddInputField("Content", data.Content, 0, nil, func(text string) {
+				data.Content = text
+				btn.SetDisabled(false)
+			}).
+			AddTextArea("Meta", string(meta), 0, 0, 256, func(text string) { // nolint: mnd
+				btn.SetDisabled(false)
+				json.Unmarshal([]byte(text), &data.Meta)
+			})
+	case *secrets.FileSecretData:
+		meta, err := json.Marshal(data.Meta)
+		if err != nil {
+			panic(err) // TODO@novoseltcev: handle error
+		}
+
+		return form.
+			AddInputField("Name", data.Name, 0, nil, func(text string) {
+				data.Name = text
+				btn.SetDisabled(false)
+			}).
+			AddInputField("Filename", data.Filename, 0, nil, func(text string) {
+				data.Filename = text
+				btn.SetDisabled(false)
+			}).
+			AddInputField("Content", data.Content, 0, nil, func(text string) {
+				data.Content = text
+				btn.SetDisabled(false)
+			}).
+			AddTextArea("Meta", string(meta), 0, 0, 256, func(text string) { // nolint: mnd
+				btn.SetDisabled(false)
+				json.Unmarshal([]byte(text), &data.Meta)
+			})
+	default:
+		panic("unreachable")
+	}
 }
