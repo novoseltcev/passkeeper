@@ -8,6 +8,12 @@
 *.so
 *.dylib
 
+# Binaries
+cmd/client/*
+!cmd/client/*.go
+cmd/server/*
+!cmd/server/*.go
+
 # Test binary, built with `go test -c`
 *.test
 
@@ -23,3 +29,8 @@ go.work.sum
 
 # env file
 .env
+!.env.test
+
+# Reports
+reports/*
+!reports/coverage.out
